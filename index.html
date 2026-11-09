@@ -185,6 +185,7 @@ dl.spec dt{color:var(--muted)}dl.spec dd{margin:0}
 .map-note{position:absolute;left:50%;transform:translateX(-50%);bottom:60px;z-index:1100;font-size:11.5px;color:var(--warm);padding:6px 12px;max-width:calc(100% - 24px);text-align:center}
 .map-note.big{top:50%;bottom:auto;transform:translate(-50%,-50%);display:grid;gap:6px;padding:16px 18px;width:min(420px,calc(100% - 24px));color:var(--muted);font-size:13px;line-height:1.5}
 .map-note.big strong{color:var(--fg);font-family:var(--f-display);font-size:15px}
+.map-diag{position:absolute;right:58px;bottom:14px;z-index:1100;font-family:var(--f-mono);font-size:10.5px;color:var(--muted);background:rgba(15,20,48,.8);padding:4px 8px;border-radius:8px;max-width:calc(100% - 140px);overflow-wrap:anywhere}
 .boat-ic{background:none;border:0}
 .boat-ic .bt{width:34px;height:34px;transition:transform .6s;filter:drop-shadow(0 0 8px rgba(255,191,94,.7))}
 @media (max-width:680px){.trip-ov{position:static;width:auto;margin-top:10px}.nav-ov{width:190px;padding:9px 10px}.sog b{font-size:26px}.gauge{width:64px;height:56px}}
@@ -298,6 +299,7 @@ label.f{font-size:12px;color:var(--muted);display:grid;gap:5px}
         <button type="button" id="resetTrip">Seyri sıfırla</button>
       </div>
       <p class="map-note glass" id="mapNote" hidden></p>
+      <div class="map-diag" id="mapDiag"></div>
     </div>
   </section>
 
@@ -336,6 +338,7 @@ label.f{font-size:12px;color:var(--muted);display:grid;gap:5px}
           <dt>Bağlama limanı</dt><dd>Tuzla (L.TUZLA)</dd>
           <dt>Motor</dt><dd>300 hp dıştan takma</dd>
           <dt>Kontrol ünitesi</dt><dd>Labobinx xRoute</dd>
+          <dt>Panel sürümü</dt><dd id="verTxt" style="font-family:var(--f-mono)"></dd>
         </dl>
       </div>
     </div>
@@ -359,6 +362,7 @@ label.f{font-size:12px;color:var(--muted);display:grid;gap:5px}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
 <script>
 const $=s=>document.querySelector(s);
+const VER='1.2 · 9 Kasım 2026';let lastErr='';window.addEventListener('error',e=>{lastErr=(e.message||'hata')+(e.lineno?' @'+e.lineno:'')});
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 let toastT;function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>e.classList.remove('show'),1800)}
 
@@ -750,7 +754,7 @@ document.querySelectorAll('.views button').forEach(b=>b.onclick=()=>{if(b.datase
 /* ---------- Harita: konum ve sürat ---------- */
 const NM=1852,KN=1.943844;
 const NAV={lat:40.8128,lon:29.2975,sog:0,cog:0,src:'demo',t0:Date.now(),dist:0,max:0,last:null,lastT:0};
-let map=null,boatMk=null,trail=null,follow=true,gpsId=null,tileErr=false;
+const TS={ok:0,err:0,prov:'-'};let map=null,boatMk=null,trail=null,follow=true,gpsId=null,tileErr=false;
 const hav=(a,b)=>{const R=6371000,r=Math.PI/180,dl=(b[0]-a[0])*r,dn=(b[1]-a[1])*r;const x=Math.sin(dl/2)**2+Math.cos(a[0]*r)*Math.cos(b[0]*r)*Math.sin(dn/2)**2;return 2*R*Math.asin(Math.sqrt(x))};
 const brg=(a,b)=>{const r=Math.PI/180,y=Math.sin((b[1]-a[1])*r)*Math.cos(b[0]*r),x=Math.cos(a[0]*r)*Math.sin(b[0]*r)-Math.sin(a[0]*r)*Math.cos(b[0]*r)*Math.cos((b[1]-a[1])*r);return(Math.atan2(y,x)/r+360)%360};
 const dm=(v,pos,neg)=>{const a=Math.abs(v),d=Math.floor(a),m=(a-d)*60;return`${d}°${m.toFixed(3).replace('.',',')}′ ${v>=0?pos:neg}`};
@@ -765,7 +769,8 @@ function drawNav(){$('#sog').textContent=f1(NAV.sog);$('#gArc').setAttribute('st
   $('#gpsSrc').textContent=NAV.src==='gps'?'Telefon GPS':'Demo seyir';
   const sec=(Date.now()-NAV.t0)/1000,h=sec/3600;$('#tDist').textContent=f2(NAV.dist/NM);$('#tTime').textContent=`${Math.floor(sec/3600)}:${String(Math.floor(sec/60)%60).padStart(2,'0')}`;
   $('#tMax').textContent=f1(NAV.max);$('#tAvg').textContent=f1(h>0?NAV.dist/NM/h:0)}
-function showMap(){if(!window.L){$('#mapNote').hidden=false;$('#mapNote').textContent='Harita kütüphanesi yüklenemedi. Sayfayı yenile.';drawNav();return}
+function showMap(){try{showMap0()}catch(e){lastErr=(e&&e.message||String(e))+' [showMap]';diag()}}
+function showMap0(){if(!window.L){$('#mapNote').hidden=false;$('#mapNote').textContent='Harita kütüphanesi yüklenemedi. Sayfayı yenile.';drawNav();return}
   if(!map){map=L.map('map',{zoomControl:false,dragging:true,touchZoom:true,scrollWheelZoom:true,doubleClickZoom:true,boxZoom:true,keyboard:true}).setView([NAV.lat,NAV.lon],14);
     const inClaude=window.self!==window.top||/claude\.ai|claudeusercontent/.test(location.host);
     const PROV=[
@@ -776,12 +781,12 @@ function showMap(){if(!window.L){$('#mapNote').hidden=false;$('#mapNote').textCo
     const note=(t,big)=>{const n=$('#mapNote');n.hidden=!t;n.classList.toggle('big',!!big);n.innerHTML=t||''};
     function useProv(k){if(base)map.removeLayer(base);const P=PROV[k];let ok=false,errs=0;
       base=L.tileLayer(P.u,P.o).addTo(map);base.bringToBack();
-      base.on('tileload',()=>{if(!ok){ok=true;tileErr=false;note('')}});
+      base.on('tileload',()=>{TS.ok++;if(!ok){ok=true;tileErr=false;note('')}});TS.prov=P.n;
       const fail=()=>{if(ok||k!==pi)return;failed.push(P.n);pi++;
         if(pi<PROV.length){note(`${failed.join(', ')} yüklenemedi, ${PROV[pi].n} deneniyor…`);useProv(pi)}
         else{tileErr=true;note(inClaude?'<strong>Harita altlığı burada açılamıyor</strong><span>Claude içindeki önizleme dış sitelerden harita görseli çekilmesine izin vermiyor. Sayfayı GitHub Pages adresinden aç. Konum, sürat ve iz yine çalışıyor.</span>':
           `<strong>Harita sunucularına ulaşılamadı</strong><span>Denenenler: ${failed.join(', ')}. İnternet bağlantısını ya da tarayıcıdaki içerik engelleyiciyi kontrol et. Konum, sürat ve iz yine çalışıyor.</span>`,true)}};
-      base.on('tileerror',()=>{errs++;if(errs>=3)fail()});setTimeout(fail,6000)}
+      base.on('tileerror',()=>{TS.err++;errs++;if(errs>=3)fail()});setTimeout(fail,6000)}
     useProv(0);
     L.tileLayer('https://tiles.openseamap.org/seamark/{z}/{x}/{y}.png',{maxZoom:18,attribution:'© OpenSeaMap'}).addTo(map);
     L.control.zoom({position:'bottomright'}).addTo(map);
@@ -832,6 +837,10 @@ setInterval(()=>{const t=new Date().toLocaleString('tr-TR',{day:'2-digit',month:
   CAMS.forEach(c=>{const o=$('#osdT-'+c.id);if(o)o.textContent=t});
   if(curTab!=='kamera')return;
   CAMS.forEach(c=>{const cfg=CAMCFG[c.id];if(!cfg.url)drawDemoCam(c.id);else if(cfg.type==='snap'){const img=$('#img-'+c.id);img.src=cfg.url+(cfg.url.includes('?')?'&':'?')+'t='+Date.now()}})},1000);
+function diag(){const d=$('#mapDiag');if(!d)return;const sz=map?map.getSize():null,st=$('#map');
+  d.textContent=`v${VER.split(' ')[0]} · Leaflet ${window.L?L.version:'yok'} · ${sz?sz.x+'×'+sz.y:st.clientWidth+'×'+st.clientHeight+' (harita kurulmadı)'} · ${TS.prov} karo ${TS.ok}/${TS.err} hata`+(lastErr?' · '+lastErr:'')}
+setInterval(()=>{if(curTab==='harita')diag()},1000);
+$('#verTxt').textContent=VER;
 renderZones();renderMaps();setConn('demo');init3D();drawNav();
 </script>
 
