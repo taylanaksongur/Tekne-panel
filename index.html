@@ -9,6 +9,7 @@
 <title>The Moon Tekne Paneli</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
 <style>
 /* Layout: Aksongur Ev Paneli ile aynı dil. Kontrol = tam genişlik 3B tekne sahnesi + ışık listesi; Ayarlar = BLE bağlantısı, ışık eşleştirme, senaryolar */
@@ -143,6 +144,12 @@ dl.spec dt{color:var(--muted)}dl.spec dd{margin:0}
 .leaflet-tile,.leaflet-marker-icon{user-select:none;-webkit-user-select:none;-webkit-user-drag:none}
 .leaflet-container img.leaflet-tile{max-width:none!important;max-height:none!important;width:256px;height:256px;mix-blend-mode:normal}
 .leaflet-tile{visibility:hidden}.leaflet-tile-loaded{visibility:inherit}
+.leaflet-safari .leaflet-tile{image-rendering:-webkit-optimize-contrast}
+.leaflet-safari .leaflet-tile-container{width:1600px;height:1600px;-webkit-transform-origin:0 0}
+.leaflet-marker-icon,.leaflet-marker-shadow{display:block}
+.leaflet-container .leaflet-overlay-pane svg{max-width:none!important;max-height:none!important}
+.leaflet-container .leaflet-marker-pane img,.leaflet-container .leaflet-tile-pane img,.leaflet-container .leaflet-tile{max-width:none!important;max-height:none!important;padding:0}
+.leaflet-container.leaflet-touch-zoom{touch-action:pan-x pan-y}.leaflet-container.leaflet-touch-drag{touch-action:none}.leaflet-container.leaflet-touch-drag.leaflet-touch-zoom{touch-action:none}
 .leaflet-pane{z-index:400}.leaflet-tile-pane{z-index:200}.leaflet-overlay-pane{z-index:400}.leaflet-shadow-pane{z-index:500}.leaflet-marker-pane{z-index:600}.leaflet-tooltip-pane{z-index:650}.leaflet-popup-pane{z-index:700}
 .leaflet-zoom-animated{transform-origin:0 0}.leaflet-zoom-anim .leaflet-zoom-animated{transition:transform .25s cubic-bezier(0,0,.25,1)}
 .leaflet-zoom-anim .leaflet-tile,.leaflet-pan-anim .leaflet-tile{transition:none}.leaflet-fade-anim .leaflet-tile{will-change:opacity}
@@ -759,7 +766,7 @@ function drawNav(){$('#sog').textContent=f1(NAV.sog);$('#gArc').setAttribute('st
   const sec=(Date.now()-NAV.t0)/1000,h=sec/3600;$('#tDist').textContent=f2(NAV.dist/NM);$('#tTime').textContent=`${Math.floor(sec/3600)}:${String(Math.floor(sec/60)%60).padStart(2,'0')}`;
   $('#tMax').textContent=f1(NAV.max);$('#tAvg').textContent=f1(h>0?NAV.dist/NM/h:0)}
 function showMap(){if(!window.L){$('#mapNote').hidden=false;$('#mapNote').textContent='Harita kütüphanesi yüklenemedi. Sayfayı yenile.';drawNav();return}
-  if(!map){map=L.map('map',{zoomControl:false}).setView([NAV.lat,NAV.lon],14);
+  if(!map){map=L.map('map',{zoomControl:false,dragging:true,touchZoom:true,scrollWheelZoom:true,doubleClickZoom:true,boxZoom:true,keyboard:true}).setView([NAV.lat,NAV.lon],14);
     const inClaude=window.self!==window.top||/claude\.ai|claudeusercontent/.test(location.host);
     const PROV=[
       {n:'CARTO',u:'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',o:{subdomains:'abcd',maxZoom:19,attribution:'© OpenStreetMap · © CARTO'}},
