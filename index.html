@@ -760,11 +760,23 @@ function drawNav(){$('#sog').textContent=f1(NAV.sog);$('#gArc').setAttribute('st
   $('#tMax').textContent=f1(NAV.max);$('#tAvg').textContent=f1(h>0?NAV.dist/NM/h:0)}
 function showMap(){if(!window.L){$('#mapNote').hidden=false;$('#mapNote').textContent='Harita kütüphanesi yüklenemedi. Sayfayı yenile.';drawNav();return}
   if(!map){map=L.map('map',{zoomControl:false}).setView([NAV.lat,NAV.lon],14);
-    const base=L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{subdomains:'abcd',maxZoom:19,attribution:'© OpenStreetMap · © CARTO'}).addTo(map);
+    const inClaude=window.self!==window.top||/claude\.ai|claudeusercontent/.test(location.host);
+    const PROV=[
+      {n:'CARTO',u:'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',o:{subdomains:'abcd',maxZoom:19,attribution:'© OpenStreetMap · © CARTO'}},
+      {n:'OpenStreetMap',u:'https://tile.openstreetmap.org/{z}/{x}/{y}.png',o:{maxZoom:19,attribution:'© OpenStreetMap'}},
+      {n:'Esri',u:'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',o:{maxZoom:19,attribution:'© Esri'}}];
+    let pi=0,base=null,failed=[];
+    const note=(t,big)=>{const n=$('#mapNote');n.hidden=!t;n.classList.toggle('big',!!big);n.innerHTML=t||''};
+    function useProv(k){if(base)map.removeLayer(base);const P=PROV[k];let ok=false,errs=0;
+      base=L.tileLayer(P.u,P.o).addTo(map);base.bringToBack();
+      base.on('tileload',()=>{if(!ok){ok=true;tileErr=false;note('')}});
+      const fail=()=>{if(ok||k!==pi)return;failed.push(P.n);pi++;
+        if(pi<PROV.length){note(`${failed.join(', ')} yüklenemedi, ${PROV[pi].n} deneniyor…`);useProv(pi)}
+        else{tileErr=true;note(inClaude?'<strong>Harita altlığı burada açılamıyor</strong><span>Claude içindeki önizleme dış sitelerden harita görseli çekilmesine izin vermiyor. Sayfayı GitHub Pages adresinden aç. Konum, sürat ve iz yine çalışıyor.</span>':
+          `<strong>Harita sunucularına ulaşılamadı</strong><span>Denenenler: ${failed.join(', ')}. İnternet bağlantısını ya da tarayıcıdaki içerik engelleyiciyi kontrol et. Konum, sürat ve iz yine çalışıyor.</span>`,true)}};
+      base.on('tileerror',()=>{errs++;if(errs>=3)fail()});setTimeout(fail,6000)}
+    useProv(0);
     L.tileLayer('https://tiles.openseamap.org/seamark/{z}/{x}/{y}.png',{maxZoom:18,attribution:'© OpenSeaMap'}).addTo(map);
-    let tileOk=false;const noTiles=()=>{if(tileOk||tileErr)return;tileErr=true;const n=$('#mapNote');n.hidden=false;n.classList.add('big');
-      n.innerHTML='<strong>Harita altlığı burada açılamıyor</strong><span>Claude içindeki önizleme dış sitelerden harita görseli çekilmesine izin vermiyor. Sayfayı GitHub Pages adresinden açınca harita görünür. Konum, sürat ve iz bu ekranda yine çalışıyor.</span>'};
-    base.on('tileload',()=>{tileOk=true;$('#mapNote').hidden=true});base.on('tileerror',noTiles);setTimeout(noTiles,4000);
     L.control.zoom({position:'bottomright'}).addTo(map);
     trail=L.polyline([],{color:'#ffbf5e',weight:3,opacity:.85}).addTo(map);
     boatMk=L.marker([NAV.lat,NAV.lon],{icon:L.divIcon({className:'boat-ic',iconSize:[34,34],iconAnchor:[17,17],html:'<svg class="bt" viewBox="0 0 34 34"><path d="M17 3 L26 28 L17 23 L8 28 Z" fill="#ffbf5e" stroke="#2a1a05" stroke-width="1.5" stroke-linejoin="round"/></svg>'})}).addTo(map);
