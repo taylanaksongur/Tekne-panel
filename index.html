@@ -298,8 +298,9 @@ label.f{font-size:12px;color:var(--muted);display:grid;gap:5px}
         <button type="button" id="gpsBtn">Telefon GPS'ini kullan</button>
         <button type="button" id="followBtn" aria-pressed="true">Tekneyi takip et</button>
         <button type="button" id="resetTrip">Seyri sıfırla</button>
-        <select id="baseSel" aria-label="Harita türü"><option value="koyu">Harita: Koyu</option><option value="sokak">Harita: Sokak</option><option value="uydu">Harita: Uydu</option><option value="deniz">Harita: Deniz</option></select>
+        <select id="baseSel" aria-label="Harita türü"><option value="koyu">Harita: Koyu</option><option value="sokak">Harita: Sokak</option><option value="uydu">Harita: Uydu</option><option value="deniz">Harita: Deniz</option><option value="derinlik">Harita: Derinlik</option></select>
         <button type="button" id="seaBtn" aria-pressed="true">Deniz işaretleri</button>
+        <button type="button" id="isoBtn" aria-pressed="false">Derinlik eğrileri</button>
       </div>
       <p class="map-note glass" id="mapNote" hidden></p>
     </div>
@@ -346,8 +347,8 @@ label.f{font-size:12px;color:var(--muted);display:grid;gap:5px}
     </div>
     <div class="card cam-set">
       <h3>Harita</h3>
-      <p class="note">Koyu harita anahtarsız olarak Esri'nin koyu gri altlığını kullanır. CARTO'nun koyu haritasını istersen ücretsiz bir CARTO anahtarı al ve buraya yapıştır: carto.com/basemaps/apikey adresindeki formu doldur, anahtar e-postana gelir. Kişisel kullanımda ayda 5 milyon karoya kadar ücretsiz.</p>
-      <div class="two"><label class="f" for="cartoKey">CARTO anahtarı<input type="text" id="cartoKey" placeholder="boş bırakılırsa Esri koyu harita" autocomplete="off"></label><label class="f" for="baseSel2">Varsayılan harita<select id="baseSel2"><option value="koyu">Koyu</option><option value="sokak">Sokak (OpenStreetMap)</option><option value="uydu">Uydu</option><option value="deniz">Deniz</option></select></label></div>
+      <p class="note">Koyu harita CARTO'dan gelir; anahtarı panele gömülü. Başka bir anahtar kullanmak istersen buraya yapıştır. CARTO açılmazsa panel otomatik olarak Esri'nin koyu haritasına geçer. Derinlik haritası ve derinlik eğrileri EMODnet Bathymetry'den gelir, anahtar gerektirmez.</p>
+      <div class="two"><label class="f" for="cartoKey">CARTO anahtarı<input type="text" id="cartoKey" placeholder="boş bırakılırsa paneldeki kayıtlı anahtar kullanılır" autocomplete="off"></label><label class="f" for="baseSel2">Varsayılan harita<select id="baseSel2"><option value="koyu">Koyu</option><option value="sokak">Sokak (OpenStreetMap)</option><option value="uydu">Uydu</option><option value="deniz">Deniz</option><option value="derinlik">Derinlik (EMODnet)</option></select></label></div>
       <div class="row"><button class="btn" id="mapSave" type="button">Haritayı kaydet</button></div>
       <p class="note" id="mapDiag" style="font-family:var(--f-mono);font-size:11px"></p>
     </div>
@@ -371,7 +372,7 @@ label.f{font-size:12px;color:var(--muted);display:grid;gap:5px}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
 <script>
 const $=s=>document.querySelector(s);
-const VER='1.4 · 9 Kasım 2026';let lastErr='';window.addEventListener('error',e=>{lastErr=(e.message||'hata')+(e.lineno?' @'+e.lineno:'')});
+const VER='1.5 · 9 Kasım 2026';let lastErr='';window.addEventListener('error',e=>{lastErr=(e.message||'hata')+(e.lineno?' @'+e.lineno:'')});
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 let toastT;function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>e.classList.remove('show'),1800)}
 
@@ -779,23 +780,32 @@ function drawNav(){$('#sog').textContent=f1(NAV.sog);$('#gArc').setAttribute('st
   $('#gpsSrc').textContent=NAV.src==='gps'?'Telefon GPS':'Demo seyir';
   const sec=(Date.now()-NAV.t0)/1000,h=sec/3600;$('#tDist').textContent=f2(NAV.dist/NM);$('#tTime').textContent=`${Math.floor(sec/3600)}:${String(Math.floor(sec/60)%60).padStart(2,'0')}`;
   $('#tMax').textContent=f1(NAV.max);$('#tAvg').textContent=f1(h>0?NAV.dist/NM/h:0)}
-const MAPKEY='tekne-harita-v1';let MAPCFG={base:'koyu',sea:true,carto:''};
+const MAPKEY='tekne-harita-v1';let MAPCFG={base:'koyu',sea:true,iso:false,carto:''};
 try{const j=JSON.parse(localStorage.getItem(MAPKEY)||'null');if(j)Object.assign(MAPCFG,j)}catch(e){}
 const saveMapCfg=()=>{try{localStorage.setItem(MAPKEY,JSON.stringify(MAPCFG))}catch(e){}};
+const DEF_CARTO='cb1_55gr_1_7d2346f40296a94590635a6e';
+const cartoKey=()=>MAPCFG.carto||DEF_CARTO;
+const T_=(n,u,o)=>({n,u,o}),W_=(n,u,o)=>({n,u,o,wms:true});
 const BASES={
-  koyu:()=>MAPCFG.carto?{n:'Koyu (CARTO)',u:'https://{s}.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}{r}.png?key='+encodeURIComponent(MAPCFG.carto),o:{subdomains:'abcd',maxZoom:19,attribution:'© OpenStreetMap · © CARTO'}}
-    :{n:'Koyu (Esri)',u:'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}',o:{maxZoom:19,maxNativeZoom:16,attribution:'© Esri'}},
-  sokak:()=>({n:'Sokak (OSM)',u:'https://tile.openstreetmap.org/{z}/{x}/{y}.png',o:{maxZoom:19,attribution:'© OpenStreetMap'}}),
-  uydu:()=>({n:'Uydu (Esri)',u:'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',o:{maxZoom:19,maxNativeZoom:18,attribution:'© Esri, Maxar, Earthstar Geographics'}}),
-  deniz:()=>({n:'Deniz (Esri)',u:'https://server.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Base/MapServer/tile/{z}/{y}/{x}',o:{maxZoom:19,maxNativeZoom:13,attribution:'© Esri, GEBCO, NOAA'}})};
-let baseL=null,seaL=null;
-function applyBase(){if(!map)return;if(baseL)map.removeLayer(baseL);const P=(BASES[MAPCFG.base]||BASES.koyu)();TS.prov=P.n;TS.ok=0;TS.err=0;
+  koyu:()=>[T_('Koyu (CARTO)','https://{s}.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}{r}.png?key='+encodeURIComponent(cartoKey()),{subdomains:'abcd',maxZoom:19,attribution:'© OpenStreetMap · © CARTO'}),
+    T_('Koyu (Esri)','https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,maxNativeZoom:16,attribution:'© Esri'})],
+  sokak:()=>[T_('Sokak (OSM)','https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'})],
+  uydu:()=>[T_('Uydu (Esri)','https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,maxNativeZoom:18,attribution:'© Esri, Maxar, Earthstar Geographics'})],
+  deniz:()=>[T_('Deniz (Esri)','https://server.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Base/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,maxNativeZoom:13,attribution:'© Esri, GEBCO, NOAA'})],
+  derinlik:()=>[T_('Derinlik (EMODnet)','https://tiles.emodnet-bathymetry.eu/2020/baselayer/web_mercator/{z}/{x}/{y}.png',{maxZoom:19,maxNativeZoom:15,attribution:'© EMODnet Bathymetry'}),
+    W_('Derinlik (EMODnet WMS)','https://ows.emodnet-bathymetry.eu/wms',{layers:'emodnet:mean_atlas_land',format:'image/png',transparent:false,version:'1.3.0',maxZoom:19,attribution:'© EMODnet Bathymetry'}),
+    W_('Derinlik (GEBCO)','https://wms.gebco.net/mapserv?',{layers:'GEBCO_LATEST',format:'image/png',transparent:false,version:'1.3.0',maxZoom:19,attribution:'© GEBCO'})]};
+let baseL=null,seaL=null,isoL=null;
+function applyBase(){if(!map)return;const list=(BASES[MAPCFG.base]||BASES.koyu)();tryProv(list,0,[])}
+function tryProv(list,k,failed){if(baseL)map.removeLayer(baseL);const P=list[k];TS.prov=P.n;TS.ok=0;TS.err=0;
   const n=$('#mapNote');n.hidden=true;n.classList.remove('big');
-  baseL=LF.tileLayer(P.u,P.o).addTo(map);baseL.bringToBack();
+  baseL=(P.wms?LF.tileLayer.wms(P.u,P.o):LF.tileLayer(P.u,P.o)).addTo(map);baseL.bringToBack();const me=baseL;
   baseL.on('tileload',()=>{TS.ok++;n.hidden=true});
-  baseL.on('tileerror',()=>{TS.err++;if(TS.err>=4&&TS.ok===0){n.hidden=false;n.classList.add('big');
-    n.innerHTML=`<strong>${P.n} yüklenemedi</strong><span>${MAPCFG.base==='koyu'&&MAPCFG.carto?'CARTO anahtarını Ayarlar → Harita bölümünde kontrol et, ya da':'İnternet bağlantısını kontrol et ya da'} aşağıdan başka bir harita seç.</span>`}})}
-function applySea(){if(!map)return;if(seaL){map.removeLayer(seaL);seaL=null}if(MAPCFG.sea)seaL=LF.tileLayer('https://tiles.openseamap.org/seamark/{z}/{x}/{y}.png',{maxZoom:19,maxNativeZoom:18,attribution:'© OpenSeaMap'}).addTo(map)}
+  baseL.on('tileerror',()=>{TS.err++;if(me!==baseL||TS.err<4||TS.ok>0)return;failed=failed.concat(P.n);
+    if(k+1<list.length){n.hidden=false;n.textContent=`${P.n} yüklenemedi, ${list[k+1].n} deneniyor…`;tryProv(list,k+1,failed)}
+    else{n.hidden=false;n.classList.add('big');n.innerHTML=`<strong>Harita yüklenemedi</strong><span>Denenenler: ${failed.join(', ')}. İnternet bağlantısını kontrol et ya da aşağıdan başka bir harita seç.</span>`}})}
+function applySea(){if(!map)return;if(seaL){map.removeLayer(seaL);seaL=null}if(MAPCFG.sea)seaL=LF.tileLayer('https://tiles.openseamap.org/seamark/{z}/{x}/{y}.png',{maxZoom:19,maxNativeZoom:18,attribution:'© OpenSeaMap'}).addTo(map);
+  if(isoL){map.removeLayer(isoL);isoL=null}if(MAPCFG.iso)isoL=LF.tileLayer.wms('https://ows.emodnet-bathymetry.eu/wms',{layers:'emodnet:contours',format:'image/png',transparent:true,version:'1.3.0',maxZoom:19,attribution:'© EMODnet Bathymetry'}).addTo(map)}
 function showMap(){try{showMap0()}catch(e){lastErr=(e&&e.message||String(e))+' [showMap]';diag()}}
 function showMap0(){if(!LF){$('#mapNote').hidden=false;$('#mapNote').textContent='Harita kütüphanesi yüklenemedi. Sayfayı yenile.';drawNav();return}
   if(!map){map=LF.map('map',{zoomControl:false,dragging:true,touchZoom:true,scrollWheelZoom:true,doubleClickZoom:true,boxZoom:true,keyboard:true}).setView([NAV.lat,NAV.lon],14);
@@ -851,9 +861,10 @@ setInterval(()=>{const t=new Date().toLocaleString('tr-TR',{day:'2-digit',month:
 function diag(){const d=$('#mapDiag');if(!d)return;const sz=map?map.getSize():null,st=$('#map');
   d.textContent=`v${VER.split(' ')[0]} · Leaflet ${LF?LF.version:'yok'} · ${sz?sz.x+'×'+sz.y:st.clientWidth+'×'+st.clientHeight+' (harita kurulmadı)'} · ${TS.prov} karo ${TS.ok}/${TS.err} hata`+(lastErr?' · '+lastErr:'')}
 setInterval(()=>{if(curTab==='harita'||curTab==='ayarlar')diag()},1000);
-function syncMapUI(){$('#baseSel').value=MAPCFG.base;$('#baseSel2').value=MAPCFG.base;$('#seaBtn').setAttribute('aria-pressed',MAPCFG.sea);$('#cartoKey').value=MAPCFG.carto}
+function syncMapUI(){$('#baseSel').value=MAPCFG.base;$('#baseSel2').value=MAPCFG.base;$('#seaBtn').setAttribute('aria-pressed',MAPCFG.sea);$('#isoBtn').setAttribute('aria-pressed',!!MAPCFG.iso);$('#cartoKey').value=MAPCFG.carto}
 $('#baseSel').onchange=e=>{MAPCFG.base=e.target.value;saveMapCfg();syncMapUI();applyBase()};
 $('#seaBtn').onclick=()=>{MAPCFG.sea=!MAPCFG.sea;saveMapCfg();syncMapUI();applySea()};
+$('#isoBtn').onclick=()=>{MAPCFG.iso=!MAPCFG.iso;saveMapCfg();syncMapUI();applySea()};
 $('#mapSave').onclick=()=>{MAPCFG.carto=$('#cartoKey').value.trim();MAPCFG.base=$('#baseSel2').value;saveMapCfg();syncMapUI();applyBase();toast('Harita ayarları kaydedildi')};
 syncMapUI();
 $('#verTxt').textContent=VER;
