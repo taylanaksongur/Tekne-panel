@@ -362,7 +362,7 @@ label.f{font-size:12px;color:var(--muted);display:grid;gap:5px}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
 <script>
 const $=s=>document.querySelector(s);
-const VER='1.2 · 9 Kasım 2026';let lastErr='';window.addEventListener('error',e=>{lastErr=(e.message||'hata')+(e.lineno?' @'+e.lineno:'')});
+const VER='1.3 · 9 Kasım 2026';let lastErr='';window.addEventListener('error',e=>{lastErr=(e.message||'hata')+(e.lineno?' @'+e.lineno:'')});
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 let toastT;function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>e.classList.remove('show'),1800)}
 
@@ -751,6 +751,7 @@ document.querySelectorAll('nav.tabs button').forEach(b=>b.onclick=()=>{curTab=b.
   if(curTab==='harita')showMap();});
 document.querySelectorAll('.views button').forEach(b=>b.onclick=()=>{if(b.dataset.v){if($('#view-kontrol').hidden)document.querySelector('#tab-kontrol').click();window.goView&&goView(b.dataset.v)}});
 
+const LF=window.L||null; /* Leaflet; L adı tekne boyu sabitiyle çakışıyor */
 /* ---------- Harita: konum ve sürat ---------- */
 const NM=1852,KN=1.943844;
 const NAV={lat:40.8128,lon:29.2975,sog:0,cog:0,src:'demo',t0:Date.now(),dist:0,max:0,last:null,lastT:0};
@@ -770,8 +771,8 @@ function drawNav(){$('#sog').textContent=f1(NAV.sog);$('#gArc').setAttribute('st
   const sec=(Date.now()-NAV.t0)/1000,h=sec/3600;$('#tDist').textContent=f2(NAV.dist/NM);$('#tTime').textContent=`${Math.floor(sec/3600)}:${String(Math.floor(sec/60)%60).padStart(2,'0')}`;
   $('#tMax').textContent=f1(NAV.max);$('#tAvg').textContent=f1(h>0?NAV.dist/NM/h:0)}
 function showMap(){try{showMap0()}catch(e){lastErr=(e&&e.message||String(e))+' [showMap]';diag()}}
-function showMap0(){if(!window.L){$('#mapNote').hidden=false;$('#mapNote').textContent='Harita kütüphanesi yüklenemedi. Sayfayı yenile.';drawNav();return}
-  if(!map){map=L.map('map',{zoomControl:false,dragging:true,touchZoom:true,scrollWheelZoom:true,doubleClickZoom:true,boxZoom:true,keyboard:true}).setView([NAV.lat,NAV.lon],14);
+function showMap0(){if(!LF){$('#mapNote').hidden=false;$('#mapNote').textContent='Harita kütüphanesi yüklenemedi. Sayfayı yenile.';drawNav();return}
+  if(!map){map=LF.map('map',{zoomControl:false,dragging:true,touchZoom:true,scrollWheelZoom:true,doubleClickZoom:true,boxZoom:true,keyboard:true}).setView([NAV.lat,NAV.lon],14);
     const inClaude=window.self!==window.top||/claude\.ai|claudeusercontent/.test(location.host);
     const PROV=[
       {n:'CARTO',u:'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',o:{subdomains:'abcd',maxZoom:19,attribution:'© OpenStreetMap · © CARTO'}},
@@ -780,7 +781,7 @@ function showMap0(){if(!window.L){$('#mapNote').hidden=false;$('#mapNote').textC
     let pi=0,base=null,failed=[];
     const note=(t,big)=>{const n=$('#mapNote');n.hidden=!t;n.classList.toggle('big',!!big);n.innerHTML=t||''};
     function useProv(k){if(base)map.removeLayer(base);const P=PROV[k];let ok=false,errs=0;
-      base=L.tileLayer(P.u,P.o).addTo(map);base.bringToBack();
+      base=LF.tileLayer(P.u,P.o).addTo(map);base.bringToBack();
       base.on('tileload',()=>{TS.ok++;if(!ok){ok=true;tileErr=false;note('')}});TS.prov=P.n;
       const fail=()=>{if(ok||k!==pi)return;failed.push(P.n);pi++;
         if(pi<PROV.length){note(`${failed.join(', ')} yüklenemedi, ${PROV[pi].n} deneniyor…`);useProv(pi)}
@@ -788,10 +789,10 @@ function showMap0(){if(!window.L){$('#mapNote').hidden=false;$('#mapNote').textC
           `<strong>Harita sunucularına ulaşılamadı</strong><span>Denenenler: ${failed.join(', ')}. İnternet bağlantısını ya da tarayıcıdaki içerik engelleyiciyi kontrol et. Konum, sürat ve iz yine çalışıyor.</span>`,true)}};
       base.on('tileerror',()=>{TS.err++;errs++;if(errs>=3)fail()});setTimeout(fail,6000)}
     useProv(0);
-    L.tileLayer('https://tiles.openseamap.org/seamark/{z}/{x}/{y}.png',{maxZoom:18,attribution:'© OpenSeaMap'}).addTo(map);
-    L.control.zoom({position:'bottomright'}).addTo(map);
-    trail=L.polyline([],{color:'#ffbf5e',weight:3,opacity:.85}).addTo(map);
-    boatMk=L.marker([NAV.lat,NAV.lon],{icon:L.divIcon({className:'boat-ic',iconSize:[34,34],iconAnchor:[17,17],html:'<svg class="bt" viewBox="0 0 34 34"><path d="M17 3 L26 28 L17 23 L8 28 Z" fill="#ffbf5e" stroke="#2a1a05" stroke-width="1.5" stroke-linejoin="round"/></svg>'})}).addTo(map);
+    LF.tileLayer('https://tiles.openseamap.org/seamark/{z}/{x}/{y}.png',{maxZoom:18,attribution:'© OpenSeaMap'}).addTo(map);
+    LF.control.zoom({position:'bottomright'}).addTo(map);
+    trail=LF.polyline([],{color:'#ffbf5e',weight:3,opacity:.85}).addTo(map);
+    boatMk=LF.marker([NAV.lat,NAV.lon],{icon:LF.divIcon({className:'boat-ic',iconSize:[34,34],iconAnchor:[17,17],html:'<svg class="bt" viewBox="0 0 34 34"><path d="M17 3 L26 28 L17 23 L8 28 Z" fill="#ffbf5e" stroke="#2a1a05" stroke-width="1.5" stroke-linejoin="round"/></svg>'})}).addTo(map);
     map.on('dragstart',()=>{follow=false;$('#followBtn').setAttribute('aria-pressed','false')})}
   setTimeout(()=>{map.invalidateSize();if(follow)map.setView([NAV.lat,NAV.lon])},60);drawNav()}
 $('#followBtn').onclick=e=>{follow=!follow;e.currentTarget.setAttribute('aria-pressed',follow);if(follow&&map)map.panTo([NAV.lat,NAV.lon])};
@@ -838,7 +839,7 @@ setInterval(()=>{const t=new Date().toLocaleString('tr-TR',{day:'2-digit',month:
   if(curTab!=='kamera')return;
   CAMS.forEach(c=>{const cfg=CAMCFG[c.id];if(!cfg.url)drawDemoCam(c.id);else if(cfg.type==='snap'){const img=$('#img-'+c.id);img.src=cfg.url+(cfg.url.includes('?')?'&':'?')+'t='+Date.now()}})},1000);
 function diag(){const d=$('#mapDiag');if(!d)return;const sz=map?map.getSize():null,st=$('#map');
-  d.textContent=`v${VER.split(' ')[0]} · Leaflet ${window.L?L.version:'yok'} · ${sz?sz.x+'×'+sz.y:st.clientWidth+'×'+st.clientHeight+' (harita kurulmadı)'} · ${TS.prov} karo ${TS.ok}/${TS.err} hata`+(lastErr?' · '+lastErr:'')}
+  d.textContent=`v${VER.split(' ')[0]} · Leaflet ${LF?LF.version:'yok'} · ${sz?sz.x+'×'+sz.y:st.clientWidth+'×'+st.clientHeight+' (harita kurulmadı)'} · ${TS.prov} karo ${TS.ok}/${TS.err} hata`+(lastErr?' · '+lastErr:'')}
 setInterval(()=>{if(curTab==='harita')diag()},1000);
 $('#verTxt').textContent=VER;
 renderZones();renderMaps();setConn('demo');init3D();drawNav();
