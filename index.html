@@ -136,6 +136,71 @@ select{width:100%;background:#151b40;border:1px solid var(--line);border-radius:
 dl.spec{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;margin:0;font-size:13px}
 dl.spec dt{color:var(--muted)}dl.spec dd{margin:0}
 
+
+/* Harita (Leaflet çekirdek stilleri satır içi) */
+.leaflet-pane,.leaflet-tile,.leaflet-marker-icon,.leaflet-marker-shadow,.leaflet-tile-container,.leaflet-pane>svg,.leaflet-pane>canvas,.leaflet-zoom-box,.leaflet-image-layer,.leaflet-layer{position:absolute;left:0;top:0}
+.leaflet-container{overflow:hidden;-webkit-tap-highlight-color:transparent;outline:0;touch-action:none;font:inherit}
+.leaflet-tile,.leaflet-marker-icon{user-select:none;-webkit-user-select:none;-webkit-user-drag:none}
+.leaflet-container img.leaflet-tile{max-width:none!important;max-height:none!important;width:256px;height:256px;mix-blend-mode:normal}
+.leaflet-tile{visibility:hidden}.leaflet-tile-loaded{visibility:inherit}
+.leaflet-pane{z-index:400}.leaflet-tile-pane{z-index:200}.leaflet-overlay-pane{z-index:400}.leaflet-shadow-pane{z-index:500}.leaflet-marker-pane{z-index:600}.leaflet-tooltip-pane{z-index:650}.leaflet-popup-pane{z-index:700}
+.leaflet-zoom-animated{transform-origin:0 0}.leaflet-zoom-anim .leaflet-zoom-animated{transition:transform .25s cubic-bezier(0,0,.25,1)}
+.leaflet-zoom-anim .leaflet-tile,.leaflet-pan-anim .leaflet-tile{transition:none}.leaflet-fade-anim .leaflet-tile{will-change:opacity}
+.leaflet-interactive{cursor:pointer}.leaflet-grab{cursor:grab}.leaflet-dragging .leaflet-grab{cursor:grabbing}
+.leaflet-top,.leaflet-bottom{position:absolute;z-index:1000;pointer-events:none}.leaflet-top{top:0}.leaflet-right{right:0}.leaflet-bottom{bottom:0}.leaflet-left{left:0}
+.leaflet-control{position:relative;z-index:800;pointer-events:auto;float:left;clear:both}.leaflet-right .leaflet-control{float:right}
+.leaflet-bottom .leaflet-control{margin-bottom:10px}.leaflet-right .leaflet-control{margin-right:10px}
+.leaflet-bar{border-radius:12px;overflow:hidden;border:1px solid var(--line);background:rgba(24,31,69,.88)}
+.leaflet-bar a{display:block;width:36px;height:36px;line-height:34px;text-align:center;color:var(--fg);text-decoration:none;font-size:20px;border-bottom:1px solid var(--line)}
+.leaflet-bar a:last-child{border-bottom:0}.leaflet-bar a.leaflet-disabled{opacity:.4}
+.leaflet-control-attribution{margin:0!important;padding:2px 8px;font-size:10px;background:rgba(15,20,48,.75);color:var(--muted);border-radius:8px 0 0 0}
+.leaflet-control-attribution a{color:var(--muted)}
+.map-wrap{max-width:1200px;width:100%;margin:0 auto;padding-top:2vh;position:relative}
+#map{height:min(76vh,820px);min-height:360px;border-radius:22px;border:1px solid var(--line);
+  background:#0c1230 repeating-linear-gradient(0deg,transparent 0 63px,rgba(140,148,201,.08) 63px 64px),#0c1230;background-image:repeating-linear-gradient(0deg,transparent 0 63px,rgba(140,148,201,.08) 63px 64px),repeating-linear-gradient(90deg,transparent 0 63px,rgba(140,148,201,.08) 63px 64px)}
+.glass{background:rgba(24,31,69,.86);border:1px solid var(--line);border-radius:16px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.nav-ov{position:absolute;top:calc(2vh + 12px);left:12px;z-index:1100;padding:12px 14px;display:grid;gap:8px;width:220px}
+.sogrow{display:flex;align-items:center;gap:10px}
+.gauge{width:84px;height:72px;flex:none}
+.sog b{display:block;font-family:var(--f-display);font-size:34px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+.sog span{font-size:12px;color:var(--muted)}
+.navdl{display:grid;grid-template-columns:auto 1fr;gap:3px 10px;margin:0;font-size:12px}
+.navdl dt{color:var(--muted)}.navdl dd{margin:0;font-family:var(--f-mono);font-size:12px;text-align:right;font-variant-numeric:tabular-nums}
+.trip-ov{position:absolute;top:calc(2vh + 12px);right:12px;z-index:1100;padding:12px 14px;width:200px;display:grid;gap:6px}
+.trip-ov h4,.nav-ov h4{margin:0;font-family:var(--f-display);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.trip-ov .tg{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.trip-ov .tg div{background:var(--panel-2);border-radius:10px;padding:7px 9px}
+.trip-ov .tg b{display:block;font-family:var(--f-display);font-size:17px;font-variant-numeric:tabular-nums}
+.trip-ov .tg small{color:var(--muted);font-size:10.5px}
+.map-ctrl{position:absolute;left:12px;bottom:12px;z-index:1100;display:flex;gap:8px;flex-wrap:wrap}
+.map-ctrl button,.cam-foot button{display:inline-flex;align-items:center;gap:7px;padding:9px 13px;border-radius:12px;font-size:12px;font-weight:600;background:rgba(24,31,69,.88);border:1px solid var(--line);color:var(--fg)}
+.map-ctrl button[aria-pressed="true"]{border-color:var(--warm);color:var(--warm)}
+.map-note{position:absolute;left:50%;transform:translateX(-50%);bottom:60px;z-index:1100;font-size:11.5px;color:var(--warm);padding:6px 12px;max-width:calc(100% - 24px);text-align:center}
+.map-note.big{top:50%;bottom:auto;transform:translate(-50%,-50%);display:grid;gap:6px;padding:16px 18px;width:min(420px,calc(100% - 24px));color:var(--muted);font-size:13px;line-height:1.5}
+.map-note.big strong{color:var(--fg);font-family:var(--f-display);font-size:15px}
+.boat-ic{background:none;border:0}
+.boat-ic .bt{width:34px;height:34px;transition:transform .6s;filter:drop-shadow(0 0 8px rgba(255,191,94,.7))}
+@media (max-width:680px){.trip-ov{position:static;width:auto;margin-top:10px}.nav-ov{width:190px;padding:9px 10px}.sog b{font-size:26px}.gauge{width:64px;height:56px}}
+/* Kameralar */
+.cams{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;max-width:1500px;width:100%;margin:0 auto;padding-top:2vh}
+.cam{display:grid;gap:10px}
+.cam-head{display:flex;align-items:center;gap:10px}
+.cam-head h3{margin:0;flex:1}
+.screen{position:relative;aspect-ratio:16/9;max-width:100%;border-radius:14px;overflow:hidden;background:#05081a;border:1px solid var(--line)}
+.screen canvas,.screen img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.osd{position:absolute;z-index:2;font-family:var(--f-mono);font-size:11.5px;color:#fff;text-shadow:0 1px 3px #000;display:flex;align-items:center;gap:6px}
+.osd.tl{top:10px;left:12px}.osd.tr{top:10px;right:12px}.osd.bl{bottom:10px;left:12px;color:var(--warm)}
+.osd .rec{width:9px;height:9px;border-radius:50%;background:var(--danger);animation:blink 1.4s infinite}
+@keyframes blink{50%{opacity:.25}}
+.screen .err{position:absolute;inset:0;display:grid;place-content:center;text-align:center;gap:6px;padding:20px;color:var(--muted);font-size:13px;z-index:3;background:rgba(5,8,26,.82)}
+.screen .err strong{color:var(--fg);font-family:var(--f-display)}
+.cam-foot{display:flex;gap:8px;flex-wrap:wrap}
+.cam-set{display:grid;gap:10px}
+.cam-set .two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,180px);gap:8px}
+input[type=text]{width:100%;background:#151b40;border:1px solid var(--line);border-radius:10px;color:var(--fg);padding:8px 10px;font:inherit;font-size:12.5px}
+label.f{font-size:12px;color:var(--muted);display:grid;gap:5px}
+@media (max-width:860px){.cams{grid-template-columns:minmax(0,1fr)}.cam-set .two{grid-template-columns:minmax(0,1fr)}}
+@media (prefers-reduced-motion:reduce){.osd .rec{animation:none}}
 .toast{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translateX(-50%) translateY(30px);opacity:0;background:#fff;color:#141a3d;padding:10px 16px;border-radius:12px;font-size:13px;font-weight:500;transition:.25s;pointer-events:none;z-index:20;max-width:calc(100% - 32px)}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
@@ -171,6 +236,8 @@ dl.spec dt{color:var(--muted)}dl.spec dd{margin:0}
     <div class="hdr-right">
       <nav class="tabs" role="tablist">
         <button role="tab" id="tab-kontrol" aria-selected="true" data-view="kontrol">Kontrol</button>
+        <button role="tab" id="tab-harita" aria-selected="false" data-view="harita">Harita</button>
+        <button role="tab" id="tab-kamera" aria-selected="false" data-view="kamera">Kamera</button>
         <button role="tab" id="tab-ayarlar" aria-selected="false" data-view="ayarlar">Ayarlar</button>
       </nav>
       <span class="chip demo" id="connChip">● Demo</span>
@@ -188,6 +255,47 @@ dl.spec dt{color:var(--muted)}dl.spec dd{margin:0}
       <div class="rooms-ov" id="roomsOv" aria-label="Işıklar"></div>
       <div class="hint">Tek parmak: döndür · İki parmak: kaydır ve yakınlaş · Farede sağ tık veya Shift ile sürükle: kaydır · Boş yere çift dokun: görünümü sıfırla · Işığa dokun: aç / kapat</div>
     </div>
+  </section>
+
+  <section class="view" id="view-harita" hidden>
+    <div class="map-wrap">
+      <div id="map" aria-label="Tekne konumu haritası"></div>
+      <div class="nav-ov glass">
+        <div class="sogrow">
+          <svg class="gauge" viewBox="0 0 120 104" aria-hidden="true">
+            <circle cx="60" cy="60" r="46" fill="none" stroke="#2a3266" stroke-width="10" stroke-linecap="round" stroke-dasharray="193 289" transform="rotate(150 60 60)"/>
+            <circle id="gArc" cx="60" cy="60" r="46" fill="none" stroke="#ffbf5e" stroke-width="10" stroke-linecap="round" stroke-dasharray="0 289" transform="rotate(150 60 60)"/>
+            <text x="17" y="100" fill="#8c94c9" font-size="11" font-family="IBM Plex Mono, monospace">0</text><text x="92" y="100" fill="#8c94c9" font-size="11" font-family="IBM Plex Mono, monospace">40</text>
+          </svg>
+          <div class="sog"><b id="sog">--</b><span>knot · sürat</span></div>
+        </div>
+        <dl class="navdl">
+          <dt>Rota</dt><dd id="cog">---°</dd>
+          <dt>Enlem</dt><dd id="lat">--</dd>
+          <dt>Boylam</dt><dd id="lon">--</dd>
+          <dt>Kaynak</dt><dd id="gpsSrc">Demo seyir</dd>
+        </dl>
+      </div>
+      <div class="trip-ov glass">
+        <h4>Bu seyir</h4>
+        <div class="tg">
+          <div><b id="tDist">0,00</b><small>mil (nm)</small></div>
+          <div><b id="tTime">0:00</b><small>süre</small></div>
+          <div><b id="tMax">0,0</b><small>maks kn</small></div>
+          <div><b id="tAvg">0,0</b><small>ort. kn</small></div>
+        </div>
+      </div>
+      <div class="map-ctrl">
+        <button type="button" id="gpsBtn">Telefon GPS'ini kullan</button>
+        <button type="button" id="followBtn" aria-pressed="true">Tekneyi takip et</button>
+        <button type="button" id="resetTrip">Seyri sıfırla</button>
+      </div>
+      <p class="map-note glass" id="mapNote" hidden></p>
+    </div>
+  </section>
+
+  <section class="view" id="view-kamera" hidden>
+    <div class="cams" id="cams"></div>
   </section>
 
   <section class="view" id="view-ayarlar" hidden>
@@ -224,6 +332,13 @@ dl.spec dt{color:var(--muted)}dl.spec dd{margin:0}
         </dl>
       </div>
     </div>
+    <div class="card cam-set">
+      <h3>Kameralar</h3>
+      <p class="note">Her kamera için görüntü adresini gir. MJPEG akışı doğrudan oynar; anlık görüntü (JPEG) seçilirse saniyede bir yenilenir. Sayfa https üzerinden açıldığı için kamera adresi de https olmalı, yoksa tarayıcı görüntüyü engeller. Adres boşsa 3B modelden örnek görüntü gösterilir.</p>
+      <div class="two"><label class="f" for="camUrl-on">Ön kamera adresi<input type="text" id="camUrl-on" placeholder="ör. https://192.168.1.60/video.mjpg"></label><label class="f" for="camType-on">Tür<select id="camType-on"><option value="mjpeg">MJPEG akışı</option><option value="snap">JPEG anlık görüntü</option></select></label></div>
+      <div class="two"><label class="f" for="camUrl-arka">Arka kamera adresi<input type="text" id="camUrl-arka" placeholder="ör. https://192.168.1.61/video.mjpg"></label><label class="f" for="camType-arka">Tür<select id="camType-arka"><option value="mjpeg">MJPEG akışı</option><option value="snap">JPEG anlık görüntü</option></select></label></div>
+      <div class="row"><button class="btn" id="camSave" type="button">Kameraları kaydet</button></div>
+    </div>
     <div class="card">
       <h3>Işık eşleştirme</h3>
       <p class="note" style="margin-bottom:10px">Her ışığın xRoute'taki kanalı. Varsayılanlar tahmin; teknede tek tek dene ve yanlış olanı buradan düzelt. <code>swN</code> sırası xRoute ana ekranındaki sırayla aynı. Seçimler bu cihazda saklanır.</p>
@@ -234,6 +349,7 @@ dl.spec dt{color:var(--muted)}dl.spec dd{margin:0}
 <div class="toast" id="toast"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
 <script>
 const $=s=>document.querySelector(s);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -537,6 +653,10 @@ function init3D(){
     FX.push({k:'halo',o:sp,src:[['seyir',1]],max:1,v:0});hit('seyir',x,y,z,0.3)});
 
   T={scene,camera,renderer,FX,HIT};
+  /* sanal kamera: hardtop önü ve kıç */
+  const vcam=new THREE.PerspectiveCamera(62,16/9,0.05,200);
+  const VC={on:{p:[5.35,2.82,CZ],t:[11.5,1.2,CZ]},arka:{p:[0.62,2.5,0],t:[-3.5,0.1,0]}};
+  window.camShot=id=>{const c=VC[id],cv=renderer.domElement;if(!cv.width)return null;vcam.position.set(...c.p);vcam.lookAt(...c.t);vcam.aspect=cv.width/cv.height;vcam.updateProjectionMatrix();renderer.render(scene,vcam);needs=true;return cv};
 
   /* ---------- kamera ---------- */
   const VIEWS={genel:{t:[4.4,1.3,0],th:-0.55,ph:1.08,z:1},kokpit:{t:[0.9,1.3,0],th:-1.35,ph:1.0,z:0.52},bas:{t:[7.8,1.5,0],th:0.95,ph:0.98,z:0.55},ust:{t:[4.4,1.2,0],th:-0.35,ph:0.32,z:1}};
@@ -614,10 +734,86 @@ $('#scenes').addEventListener('click',e=>{const b=e.target.closest('[data-sc]');
 $('#allOn').onclick=()=>{DEFS.forEach(d=>{if(d.id==='seyir'||d.id==='demir')return;S[d.id].on=true;pushLight(d.id)});refresh();toast('İç ve kokpit ışıkları açıldı')};
 $('#allOff').onclick=()=>{DEFS.forEach(d=>{S[d.id].on=false;pushLight(d.id)});refresh();toast('Tüm ışıklar kapatıldı')};
 function refresh(){renderZones();save();needs=true}
-document.querySelectorAll('nav.tabs button').forEach(b=>b.onclick=()=>{document.querySelectorAll('nav.tabs button').forEach(x=>x.setAttribute('aria-selected',x===b));
-  $('#view-kontrol').hidden=b.dataset.view!=='kontrol';$('#view-ayarlar').hidden=b.dataset.view!=='ayarlar';needs=true});
+let curTab='kontrol';
+document.querySelectorAll('nav.tabs button').forEach(b=>b.onclick=()=>{curTab=b.dataset.view;document.querySelectorAll('nav.tabs button').forEach(x=>x.setAttribute('aria-selected',x===b));
+  ['kontrol','harita','kamera','ayarlar'].forEach(v=>$('#view-'+v).hidden=v!==curTab);$('.views').style.visibility=curTab==='kontrol'?'visible':'hidden';needs=true;
+  if(curTab==='harita')showMap();});
 document.querySelectorAll('.views button').forEach(b=>b.onclick=()=>{if(b.dataset.v){if($('#view-kontrol').hidden)document.querySelector('#tab-kontrol').click();window.goView&&goView(b.dataset.v)}});
-renderZones();renderMaps();setConn('demo');init3D();
+
+/* ---------- Harita: konum ve sürat ---------- */
+const NM=1852,KN=1.943844;
+const NAV={lat:40.8128,lon:29.2975,sog:0,cog:0,src:'demo',t0:Date.now(),dist:0,max:0,last:null,lastT:0};
+let map=null,boatMk=null,trail=null,follow=true,gpsId=null,tileErr=false;
+const hav=(a,b)=>{const R=6371000,r=Math.PI/180,dl=(b[0]-a[0])*r,dn=(b[1]-a[1])*r;const x=Math.sin(dl/2)**2+Math.cos(a[0]*r)*Math.cos(b[0]*r)*Math.sin(dn/2)**2;return 2*R*Math.asin(Math.sqrt(x))};
+const brg=(a,b)=>{const r=Math.PI/180,y=Math.sin((b[1]-a[1])*r)*Math.cos(b[0]*r),x=Math.cos(a[0]*r)*Math.sin(b[0]*r)-Math.sin(a[0]*r)*Math.cos(b[0]*r)*Math.cos((b[1]-a[1])*r);return(Math.atan2(y,x)/r+360)%360};
+const dm=(v,pos,neg)=>{const a=Math.abs(v),d=Math.floor(a),m=(a-d)*60;return`${d}°${m.toFixed(3).replace('.',',')}′ ${v>=0?pos:neg}`};
+const f1=v=>v.toFixed(1).replace('.',','),f2=v=>v.toFixed(2).replace('.',',');
+function onFix(lat,lon,sog,cog){const now=Date.now();
+  if(NAV.last){const d=hav(NAV.last,[lat,lon]),dt=(now-NAV.lastT)/1000;if(d<3000){NAV.dist+=d;if(sog==null&&dt>0)sog=d/dt*KN;if((cog==null||isNaN(cog))&&d>2)cog=brg(NAV.last,[lat,lon])}}
+  NAV.lat=lat;NAV.lon=lon;NAV.sog=sog||0;if(cog!=null&&!isNaN(cog))NAV.cog=cog;NAV.last=[lat,lon];NAV.lastT=now;NAV.max=Math.max(NAV.max,NAV.sog);
+  drawNav();if(map){boatMk.setLatLng([lat,lon]);const e=boatMk.getElement();if(e){const b=e.querySelector('.bt');if(b)b.style.transform=`rotate(${NAV.cog}deg)`}
+    trail.addLatLng([lat,lon]);const pts=trail.getLatLngs();if(pts.length>3000)trail.setLatLngs(pts.slice(-3000));if(follow)map.panTo([lat,lon],{animate:true,duration:.8})}}
+function drawNav(){$('#sog').textContent=f1(NAV.sog);$('#gArc').setAttribute('stroke-dasharray',`${(193*Math.min(1,NAV.sog/40)).toFixed(1)} 289`);
+  $('#cog').textContent=String(Math.round(NAV.cog)).padStart(3,'0')+'°';$('#lat').textContent=dm(NAV.lat,'K','G');$('#lon').textContent=dm(NAV.lon,'D','B');
+  $('#gpsSrc').textContent=NAV.src==='gps'?'Telefon GPS':'Demo seyir';
+  const sec=(Date.now()-NAV.t0)/1000,h=sec/3600;$('#tDist').textContent=f2(NAV.dist/NM);$('#tTime').textContent=`${Math.floor(sec/3600)}:${String(Math.floor(sec/60)%60).padStart(2,'0')}`;
+  $('#tMax').textContent=f1(NAV.max);$('#tAvg').textContent=f1(h>0?NAV.dist/NM/h:0)}
+function showMap(){if(!window.L){$('#mapNote').hidden=false;$('#mapNote').textContent='Harita kütüphanesi yüklenemedi. Sayfayı yenile.';drawNav();return}
+  if(!map){map=L.map('map',{zoomControl:false}).setView([NAV.lat,NAV.lon],14);
+    const base=L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{subdomains:'abcd',maxZoom:19,attribution:'© OpenStreetMap · © CARTO'}).addTo(map);
+    L.tileLayer('https://tiles.openseamap.org/seamark/{z}/{x}/{y}.png',{maxZoom:18,attribution:'© OpenSeaMap'}).addTo(map);
+    let tileOk=false;const noTiles=()=>{if(tileOk||tileErr)return;tileErr=true;const n=$('#mapNote');n.hidden=false;n.classList.add('big');
+      n.innerHTML='<strong>Harita altlığı burada açılamıyor</strong><span>Claude içindeki önizleme dış sitelerden harita görseli çekilmesine izin vermiyor. Sayfayı GitHub Pages adresinden açınca harita görünür. Konum, sürat ve iz bu ekranda yine çalışıyor.</span>'};
+    base.on('tileload',()=>{tileOk=true;$('#mapNote').hidden=true});base.on('tileerror',noTiles);setTimeout(noTiles,4000);
+    L.control.zoom({position:'bottomright'}).addTo(map);
+    trail=L.polyline([],{color:'#ffbf5e',weight:3,opacity:.85}).addTo(map);
+    boatMk=L.marker([NAV.lat,NAV.lon],{icon:L.divIcon({className:'boat-ic',iconSize:[34,34],iconAnchor:[17,17],html:'<svg class="bt" viewBox="0 0 34 34"><path d="M17 3 L26 28 L17 23 L8 28 Z" fill="#ffbf5e" stroke="#2a1a05" stroke-width="1.5" stroke-linejoin="round"/></svg>'})}).addTo(map);
+    map.on('dragstart',()=>{follow=false;$('#followBtn').setAttribute('aria-pressed','false')})}
+  setTimeout(()=>{map.invalidateSize();if(follow)map.setView([NAV.lat,NAV.lon])},60);drawNav()}
+$('#followBtn').onclick=e=>{follow=!follow;e.currentTarget.setAttribute('aria-pressed',follow);if(follow&&map)map.panTo([NAV.lat,NAV.lon])};
+$('#resetTrip').onclick=()=>{NAV.dist=0;NAV.max=0;NAV.t0=Date.now();if(trail)trail.setLatLngs([]);drawNav();toast('Seyir sıfırlandı')};
+$('#gpsBtn').onclick=()=>{if(gpsId!==null){navigator.geolocation.clearWatch(gpsId);gpsId=null;NAV.src='demo';$('#gpsBtn').textContent="Telefon GPS'ini kullan";NAV.last=null;drawNav();return}
+  if(!navigator.geolocation){toast('Bu tarayıcıda konum yok');return}
+  gpsId=navigator.geolocation.watchPosition(p=>{if(NAV.src!=='gps'){NAV.src='gps';NAV.last=null;if(trail)trail.setLatLngs([]);NAV.dist=0;NAV.max=0;NAV.t0=Date.now()}
+      const c=p.coords;onFix(c.latitude,c.longitude,c.speed!=null&&!isNaN(c.speed)?c.speed*KN:null,c.heading)},
+    err=>{navigator.geolocation.clearWatch(gpsId);gpsId=null;NAV.src='demo';$('#gpsBtn').textContent="Telefon GPS'ini kullan";
+      $('#mapNote').hidden=false;$('#mapNote').textContent=err.code===1?'Konum izni verilmedi. Bu önizlemede konum kapalı; GitHub Pages adresinde tarayıcı izin ister.':'Konum alınamadı: '+err.message},
+    {enableHighAccuracy:true,maximumAge:1000,timeout:20000});
+  $('#gpsBtn').textContent='Demo seyre dön'};
+/* demo seyir: Tuzla marinadan çıkış, koyda tur */
+const ROUTE=[[40.8128,29.2975],[40.8070,29.2935],[40.7985,29.2810],[40.7925,29.2600],[40.7960,29.2400],[40.8060,29.2380],[40.8110,29.2560],[40.8100,29.2800],[40.8128,29.2975]];
+let rSeg=0,rT=0;
+setInterval(()=>{if(NAV.src!=='demo')return;const tgt=7+((rSeg>0&&rSeg<ROUTE.length-2)?14+4*Math.sin(Date.now()/9000):0);
+  let step=tgt/KN*1;while(step>0){const a=ROUTE[rSeg],b=ROUTE[rSeg+1],L0=hav(a,b),left=L0*(1-rT);if(step<left){rT+=step/L0;step=0}else{step-=left;rT=0;rSeg=(rSeg+1)%(ROUTE.length-1)}}
+  const a=ROUTE[rSeg],b=ROUTE[rSeg+1];onFix(a[0]+(b[0]-a[0])*rT,a[1]+(b[1]-a[1])*rT,tgt,brg(a,b))},1000);
+
+/* ---------- Kameralar ---------- */
+const CAMS=[{id:'on',name:'Ön kamera'},{id:'arka',name:'Arka kamera'}];
+const CAMKEY='tekne-kamera-v1';let CAMCFG={on:{url:'',type:'mjpeg'},arka:{url:'',type:'mjpeg'}};
+try{const j=JSON.parse(localStorage.getItem(CAMKEY)||'null');if(j)CAMCFG=Object.assign(CAMCFG,j)}catch(e){}
+$('#cams').innerHTML=CAMS.map(c=>`<div class="card cam"><div class="cam-head"><h3>${c.name}</h3><span class="chip demo" id="camChip-${c.id}">● Örnek</span></div>
+  <div class="screen" id="scr-${c.id}"><canvas id="cv-${c.id}" width="960" height="540" aria-label="${c.name} görüntüsü"></canvas><img id="img-${c.id}" alt="${c.name} canlı görüntü" hidden>
+  <div class="osd tl"><i class="rec"></i>${c.id==='on'?'CAM 1 · BAŞ':'CAM 2 · KIÇ'}</div><div class="osd tr" id="osdT-${c.id}"></div><div class="osd bl" id="osdB-${c.id}">ÖRNEK · 3B model görüntüsü</div>
+  <div class="err" id="err-${c.id}" hidden><strong>Görüntü alınamadı</strong><span>Adresi ve kameranın aynı ağda olduğunu kontrol et.</span></div></div>
+  <div class="cam-foot"><button type="button" data-fs="${c.id}">Tam ekran</button></div></div>`).join('');
+document.querySelectorAll('[data-fs]').forEach(b=>b.onclick=()=>{const el=$('#scr-'+b.dataset.fs);const r=el.requestFullscreen||el.webkitRequestFullscreen;if(r)Promise.resolve(r.call(el)).catch(()=>toast('Tam ekran bu görünümde açılamıyor'));else toast('Tam ekran desteklenmiyor')});
+function applyCams(){CAMS.forEach(c=>{const cfg=CAMCFG[c.id],img=$('#img-'+c.id),live=!!cfg.url;
+  $('#camUrl-'+c.id).value=cfg.url;$('#camType-'+c.id).value=cfg.type;img.hidden=!live;$('#cv-'+c.id).hidden=live;$('#err-'+c.id).hidden=true;
+  $('#camChip-'+c.id).className='chip '+(live?'live':'demo');$('#camChip-'+c.id).textContent=live?'● Canlı':'● Örnek';$('#osdB-'+c.id).textContent=live?(cfg.type==='snap'?'ANLIK GÖRÜNTÜ':'CANLI'):'ÖRNEK · 3B model görüntüsü';
+  img.onerror=()=>{$('#err-'+c.id).hidden=false};img.onload=()=>{$('#err-'+c.id).hidden=true};
+  if(live&&cfg.type==='mjpeg')img.src=cfg.url;else if(!live)img.removeAttribute('src')})}
+$('#camSave').onclick=()=>{CAMS.forEach(c=>{CAMCFG[c.id]={url:$('#camUrl-'+c.id).value.trim(),type:$('#camType-'+c.id).value}});try{localStorage.setItem(CAMKEY,JSON.stringify(CAMCFG))}catch(e){}applyCams();toast('Kameralar kaydedildi')};
+applyCams();
+function drawDemoCam(id){const cv=$('#cv-'+id),g=cv.getContext('2d'),W=cv.width,H=cv.height;
+  const sky=g.createLinearGradient(0,0,0,H);sky.addColorStop(0,'#0b1030');sky.addColorStop(.46,'#1c2a5e');sky.addColorStop(.47,'#0a1430');sky.addColorStop(1,'#040814');g.fillStyle=sky;g.fillRect(0,0,W,H);
+  g.fillStyle='rgba(255,220,170,.5)';for(let i=0;i<14;i++){g.fillRect((i*137+(id==='on'?40:300))%W,H*.455,2+(i%3),2)}
+  const src=window.camShot&&window.camShot(id);if(src){const sw=src.width,sh=src.height,ar=16/9;let cw=sw,ch=sw/ar;if(ch>sh){ch=sh;cw=sh*ar}g.drawImage(src,(sw-cw)/2,(sh-ch)/2,cw,ch,0,0,W,H)}
+  g.fillStyle='rgba(255,255,255,.035)';for(let y=0;y<H;y+=3)g.fillRect(0,y,W,1)}
+setInterval(()=>{const t=new Date().toLocaleString('tr-TR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  CAMS.forEach(c=>{const o=$('#osdT-'+c.id);if(o)o.textContent=t});
+  if(curTab!=='kamera')return;
+  CAMS.forEach(c=>{const cfg=CAMCFG[c.id];if(!cfg.url)drawDemoCam(c.id);else if(cfg.type==='snap'){const img=$('#img-'+c.id);img.src=cfg.url+(cfg.url.includes('?')?'&':'?')+'t='+Date.now()}})},1000);
+renderZones();renderMaps();setConn('demo');init3D();drawNav();
 </script>
 
 </body>
