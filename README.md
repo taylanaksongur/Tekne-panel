@@ -19,7 +19,7 @@ Lena 32 "The Moon" teknesinin 3B modeli üzerinden ışıkları kontrol eden web
 ## Sekmeler
 
 - **Kontrol:** 3B tekne. Solda görünüm butonları ve ışık listesi, sağ altta tekne verileri (akü %, V, A, W; temiz/gri/kirli su; dış/iç sıcaklık, nem, basınç).
-- **Harita:** GPS konumu, sürat, rota, seyir. Haritalar: Koyu (CARTO), Sokak, Uydu, Deniz, Derinlik (EMODnet), Okyanus (MapTiler, anahtar gerekli). Derinlik eğrileri: EMODnet veya OpenSeaMap. Deniz işaretleri: OpenSeaMap.
+- **Harita:** Sol üstte sürat göstergesi, konum, rüzgâr ve bu seyrin özeti (nm, süre, maks, ort.). Diğer ayarlar sol alttaki **Menü** düğmesinde toplanır; haritaya dokununca kapanır. Rota paneli sadece toplam mesafe, süre, varış ve hızı gösterir; bacaklar ve kıyı mesafesi **Ayrıntılar** altında. Haritalar: Koyu (CARTO), Sokak, Uydu, Deniz, Derinlik (EMODnet), Okyanus (MapTiler, anahtar gerekli). Derinlik eğrileri: EMODnet veya OpenSeaMap. Deniz işaretleri: OpenSeaMap.
 - **Kamera:** Ön ve arka kamera (MJPEG / JPEG adresi, https).
 - **Ayarlar:** Bluetooth, senaryolar, harita anahtarları, kameralar, ışık eşleştirme, sürüm.
 
