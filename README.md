@@ -10,6 +10,19 @@ Lena 32 "The Moon" teknesinin 3B modeli üzerinden ışıkları kontrol eden web
 4. **Source** olarak `Deploy from a branch`, dal olarak `main`, klasör olarak `/ (root)` seç ve kaydet.
 5. Bir iki dakika sonra sayfa `https://<kullanıcı-adın>.github.io/tekne-paneli/` adresinde açılır.
 
+## Ekran
+
+- Üstte ince tek satır: hava durumu, ortada sekmeler (Kontrol, Harita, Kamera, Ayarlar), sağda ekran düzeni.
+- **Tek / İkili:** İkili seçilince ekran ikiye bölünür; 1. ve 2. ekrana Kontrol, Harita veya Kamera atanır. iPad'de yan yana, dikey telefonda alt alta durur. Seçim hatırlanır.
+- **Tam ekran:** Sağ üstteki buton. iPhone/iPad'de en iyi yol Safari → Paylaş → Ana Ekrana Ekle; oradan açınca adres çubuğu olmadan açılır (Bluetooth için Bluefy gerekir).
+
+## Sekmeler
+
+- **Kontrol:** 3B tekne. Solda görünüm butonları ve ışık listesi, sağ altta tekne verileri (akü %, V, A, W; temiz/gri/kirli su; dış/iç sıcaklık, nem, basınç).
+- **Harita:** GPS konumu, sürat, rota, seyir. Haritalar: Koyu (CARTO), Sokak, Uydu, Deniz, Derinlik (EMODnet), Okyanus (MapTiler, anahtar gerekli). Derinlik eğrileri: EMODnet veya OpenSeaMap. Deniz işaretleri: OpenSeaMap.
+- **Kamera:** Ön ve arka kamera (MJPEG / JPEG adresi, https).
+- **Ayarlar:** Bluetooth, senaryolar, harita anahtarları, kameralar, ışık eşleştirme, sürüm.
+
 ## Tekneye bağlanma
 
 - **iPhone:** Safari Web Bluetooth desteklemez. Sayfayı **Bluefy** tarayıcısıyla aç.
@@ -43,4 +56,4 @@ Varsayılan kanallar tahmindir. Ayarlar → **Işık eşleştirme** bölümünde
 
 ## Teknik
 
-Tek dosya: `index.html`. Three.js r128 cdnjs'den yüklenir, başka bağımlılık yok. Hava durumu Open-Meteo'dan (Tuzla) alınır.
+Tek dosya: `index.html`. Three.js r128 ve Leaflet 1.9.4 cdnjs'den yüklenir. Hava durumu Open-Meteo'dan (Tuzla) alınır.
