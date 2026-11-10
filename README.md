@@ -61,3 +61,7 @@ Tek dosya: `index.html`. Three.js r128 ve Leaflet 1.9.4 cdnjs'den yüklenir. Hav
 ## Kıyı verisi
 
 `kiyi-istanbul.json`: İstanbul, Adalar, Boğaz (Poyrazköy ve Karadeniz girişi dahil) ve İzmit Körfezi için OpenStreetMap kıyı çizgisi, dalgakıran ve iskeleler (© OpenStreetMap katkıda bulunanlar, ODbL). Rota planlama bu bölgede dış sunucuya bağlanmadan çalışır. Bölge dışındaki rotalar için veri Overpass API'den (maps.mail.ru yansısı önce) indirilir ve cihazda saklanır.
+
+## Deniz işaretleri
+
+`isaretler-istanbul.json`: OpenStreetMap seamark kayıtları (şamandıra, işaret direği, fener, batık, platform; © OpenStreetMap katkıda bulunanlar, ODbL). Haritada "Deniz işaretleri" açıkken yakınlaştırınca görünür. Rota kuralları: şamandıra/direk/denizdeki fenere en az 20 m; batık, kaya, platform 30–60 m; tek tehlike işaretine 100 m; kardinal işaretin 500 m çevresinde yanlış taraftan geçilmez. Veri gönüllülerce girilmiştir, eksik olabilir.
