@@ -57,3 +57,7 @@ Varsayılan kanallar tahmindir. Ayarlar → **Işık eşleştirme** bölümünde
 ## Teknik
 
 Tek dosya: `index.html`. Three.js r128 ve Leaflet 1.9.4 cdnjs'den yüklenir. Hava durumu Open-Meteo'dan (Tuzla) alınır.
+
+## Kıyı verisi
+
+`kiyi-istanbul.json`: İstanbul, Adalar, Boğaz (Poyrazköy ve Karadeniz girişi dahil) ve İzmit Körfezi için OpenStreetMap kıyı çizgisi, dalgakıran ve iskeleler (© OpenStreetMap katkıda bulunanlar, ODbL). Rota planlama bu bölgede dış sunucuya bağlanmadan çalışır. Bölge dışındaki rotalar için veri Overpass API'den (maps.mail.ru yansısı önce) indirilir ve cihazda saklanır.
