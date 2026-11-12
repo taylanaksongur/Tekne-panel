@@ -399,7 +399,8 @@ input[type=password]{width:100%;background:#151b40;border:1px solid var(--line);
       <div class="seg" role="group" aria-label="Ekran düzeni"><button type="button" data-lay="1" aria-pressed="true">Tek</button><button type="button" data-lay="2" aria-pressed="false">İkili</button></div>
       <select class="hsel" id="p1Sel" aria-label="1. ekran" hidden><option value="kontrol">1: Kontrol</option><option value="harita">1: Harita</option><option value="kamera">1: Kamera</option></select>
       <select class="hsel" id="p2Sel" aria-label="2. ekran" hidden><option value="kontrol">2: Kontrol</option><option value="harita">2: Harita</option><option value="kamera">2: Kamera</option></select>
-      <span class="chip demo" id="connChip">● Demo</span>
+      <span class="chip demo" id="connChip">● Bağlı değil</span>
+      <span class="chip ver" title="Sürüm" style="background:transparent;border:1px solid var(--line,#2c3670);color:var(--muted,#8c94c9);font-family:var(--f-mono,'IBM Plex Mono',monospace)">v1.0</span>
       <button type="button" class="icobtn" id="fsBtn" aria-label="Tam ekran" title="Tam ekran"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
     </div>
   </header>
@@ -422,7 +423,7 @@ input[type=password]{width:100%;background:#151b40;border:1px solid var(--line);
         </div>
       <div class="rooms-ov" id="roomsOv" aria-label="Işıklar"></div>
     <div class="tele" id="tele" aria-label="Tekne verileri">
-      <h4>Tekne verileri <span id="teleSrc">örnek</span></h4>
+      <h4>Tekne verileri <span id="teleSrc">bağlı değil</span></h4>
       <div class="t-bat"><div class="cell" id="cell"><i id="cellFill" style="height:78%"></i></div><div><b id="batPct">78%</b><small id="batLbl">12,6 V · −3,4 A · 42 W</small></div></div>
       <div class="tank"><span>Temiz su</span><div class="bar"><i id="tb1" style="background:#4fc3ff"></i></div><b id="tv1">--</b></div>
       <div class="tank"><span>Gri su</span><div class="bar"><i id="tb3" style="background:#8c94c9"></i></div><b id="tv3">--</b></div>
@@ -454,7 +455,7 @@ input[type=password]{width:100%;background:#151b40;border:1px solid var(--line);
           <dt>Enlem</dt><dd id="lat">--</dd>
           <dt>Boylam</dt><dd id="lon">--</dd>
           <dt>Rüzgâr</dt><dd id="windTxt">--</dd>
-          <dt>Kaynak</dt><dd id="gpsSrc">Demo seyir</dd>
+          <dt>Kaynak</dt><dd id="gpsSrc">Konum yok</dd>
         </dl>
         <div class="trip-row" aria-label="Bu seyir">
           <div><b id="tDist">0,00</b><small>nm</small></div>
@@ -488,7 +489,7 @@ input[type=password]{width:100%;background:#151b40;border:1px solid var(--line);
     <div class="setup-grid">
       <div class="card conn">
         <h3>xRoute bağlantısı (Bluetooth)</h3>
-        <div class="stat"><i id="stDot"></i><span id="stTxt">Demo: komutlar sadece aşağıdaki kayda yazılıyor</span></div>
+        <div class="stat"><i id="stDot"></i><span id="stTxt">Tekneye bağlı değil</span></div>
         <div class="row">
           <button class="btn" id="bleOn" type="button">Tekneye bağlan</button>
           <button class="btn ghost" id="bleOff" type="button" disabled>Bağlantıyı kes</button>
@@ -525,7 +526,7 @@ input[type=password]{width:100%;background:#151b40;border:1px solid var(--line);
     </div>
     <div class="card cam-set">
       <h3>Kameralar (Imou)</h3>
-      <p class="note">Ön ve arka kamera Imou bulutundan canlı gelir; teknenin internete bağlı olması yeterli. Görüntü yalnızca Kamera ekranı açıkken akar, kapatınca durur. SD kalite 4G'de az veri harcar; HD daha net ama birkaç kat fazla veri ister. Şifre yalnızca bu cihazda saklanır. Şifre boşsa 3B modelden örnek görüntü gösterilir. Görüntüye çift dokununca tam ekran olur, tekrar çift dokununca geri döner. Görüntü basık ya da uzamış görünürse “Görüntü oranı”nı değiştir.</p>
+      <p class="note">Ön ve arka kamera Imou bulutundan canlı gelir; teknenin internete bağlı olması yeterli. Görüntü yalnızca Kamera ekranı açıkken akar, kapatınca durur. SD kalite 4G'de az veri harcar; HD daha net ama birkaç kat fazla veri ister. Şifre yalnızca bu cihazda saklanır. Görüntüye çift dokununca tam ekran olur, tekrar çift dokununca geri döner. Görüntü basık ya da uzamış görünürse “Görüntü oranı”nı değiştir.</p>
       <div class="two"><label class="f" for="camPass" hidden>Kamera şifresi<input type="password" id="camPass" placeholder="kamera köprüsü şifresi" autocomplete="off"></label><label class="f" for="camQ">Kalite<select id="camQ"><option value="sd">SD (az veri)</option><option value="hd">HD (4MP)</option></select></label></div>
       <div class="two"><label class="f" for="camAr">Görüntü oranı<select id="camAr"><option value="169">16:9 · kameranın kendi oranı</option><option value="src">Yayın nasıl geliyorsa</option><option value="43">4:3</option></select></label><span></span></div>
       <div class="row"><button class="btn" id="camSave" type="button">Kameraları kaydet</button></div>
@@ -571,8 +572,7 @@ const DEFS=[
 const DEF=Object.fromEntries(DEFS.map(d=>[d.id,d]));
 const MAP={},S={};
 DEFS.forEach(d=>{MAP[d.id]={...d.map};S[d.id]={on:false,lv:200,col:'#33aaff'}});
-/* örnek başlangıç: akşam, kokpit ve salon açık */
-Object.assign(S.kokpit,{on:true,lv:170});Object.assign(S.salon,{on:true,lv:200});Object.assign(S.rgb,{on:true,lv:255,col:'#33aaff'});
+
 const KEY='tekne-panel-v1';
 try{const j=JSON.parse(localStorage.getItem(KEY)||'null');if(j){for(const id in j.map||{})if(MAP[id])MAP[id]=j.map[id];for(const id in j.st||{})if(S[id])Object.assign(S[id],j.st[id])}}catch(e){}
 function save(){try{localStorage.setItem(KEY,JSON.stringify({map:MAP,st:S}))}catch(e){}}
@@ -593,17 +593,18 @@ function pushLight(id){const s=S[id],m=MAP[id];
   else if(m.t==='dim')send(`APDIM${m.n}.val=${s.on?s.lv:0}`);
   else if(m.t==='rgb'){const c=new THREE.Color(s.col),k=s.on?s.lv/255:0,v=x=>Math.round(x*255*k);send(`APDIM5.val=${v(c.r)}\nAPDIM6.val=${v(c.g)}\nAPDIM7.val=${v(c.b)}`)}}
 function setConn(state,name){const chip=$('#connChip'),dot=$('#stDot');
-  chip.className='chip '+(state==='live'?'live':'demo');chip.textContent=state==='live'?'● Bağlı':'● Demo';
+  chip.className='chip '+(state==='live'?'live':'demo');chip.textContent=state==='live'?'● Bağlı':'● Bağlı değil';
   dot.className=state==='live'?'live':state==='off'?'off':'';
-  $('#stTxt').textContent=state==='live'?`Bağlı: ${name||'xRoute'}`:state==='off'?'Bağlantı koptu, komutlar gönderilmiyor':'Demo: komutlar sadece aşağıdaki kayda yazılıyor';
+  $('#stTxt').textContent=state==='live'?`Bağlı: ${name||'xRoute'}`:state==='off'?'Bağlantı koptu, komutlar gönderilmiyor':'Tekneye bağlı değil';
   $('#bleOn').disabled=state==='live';$('#bleOff').disabled=state!=='live'}
 const BAT={bat:78,v:12.6,a:-3.4,w:42,g1:64,g2:18,g3:31,t1:14.2,t2:21.5,hum:57,pre:1013};let teleLive=false;
-function drawBatt(){const f=x=>(+x).toFixed(1).replace('.',','),p=Math.max(0,Math.min(100,BAT.bat));
+function drawBatt(){if(!teleLive){$('#cellFill').style.height='0%';$('#batPct').textContent='--';$('#batLbl').textContent='Tekneye bağlı değil';[1,2,3].forEach(n=>{$('#tb'+n).style.width='0%';$('#tv'+n).textContent='--'});['eT1','eT2','eHum','ePre'].forEach(i=>$('#'+i).textContent='--');$('#teleSrc').textContent='bağlı değil';return}
+  const f=x=>(+x).toFixed(1).replace('.',','),p=Math.max(0,Math.min(100,BAT.bat));
   $('#cellFill').style.height=p+'%';$('#cell').classList.toggle('low',p<25);$('#batPct').textContent=Math.round(p)+'%';
   $('#batLbl').textContent=`${f(BAT.v)} V · ${BAT.a<0?'−':''}${f(Math.abs(BAT.a))} A · ${Math.round(BAT.w)} W`;
   [['g1',1],['g2',2],['g3',3]].forEach(([k,n])=>{const v=BAT[k],ok=v>=-10&&v<=120,c=Math.max(0,Math.min(100,v));$('#tb'+n).style.width=(ok?c:0)+'%';$('#tv'+n).textContent=ok?'%'+Math.round(c):'--'});
   $('#eT1').textContent=f(BAT.t1)+'°';$('#eT2').textContent=f(BAT.t2)+'°';$('#eHum').textContent='%'+Math.round(BAT.hum);$('#ePre').textContent=Math.round(BAT.pre);
-  $('#teleSrc').textContent=teleLive?'canlı':'örnek'}
+  $('#teleSrc').textContent='canlı'}
 function handleLine(s){s=s.trim();if(!s)return;log('rx',s);let m;
   if((m=s.match(/^(?:M\.)?sw(\d+)(?:\.val)?=([01])$/))){const n=+m[1],v=m[2]==='1';swKnown[n]=v;
     DEFS.forEach(d=>{if(MAP[d.id].t==='sw'&&MAP[d.id].n===n)S[d.id].on=v});refresh();return}
@@ -612,7 +613,7 @@ function handleLine(s){s=s.trim();if(!s)return;log('rx',s);let m;
   const rd=[[/M\.BatPr\.val=(-?\d+)/,'bat',1],[/M\.V1\.val=(-?\d+)/,'v',10],[/M\.A0\.val=(-?\d+)/,'a',10],[/M\.W1\.val=(-?\d+)/,'w',1],[/M\.G1TXT\.val=(-?\d+)/,'g1',10],[/M\.G2TXT\.val=(-?\d+)/,'g2',10],[/M\.G3TXT\.val=(-?\d+)/,'g3',10],[/M\.T1\.val=(-?\d+)/,'t1',10],[/M\.T2\.val=(-?\d+)/,'t2',10],[/M\.Hum\.val=(-?\d+)/,'hum',1],[/M\.Pre\.val=(-?\d+)/,'pre',1]];
   for(const[re,k,dv]of rd){const x=s.match(re);if(x){BAT[k]=parseFloat(x[1])/dv;teleLive=true;drawBatt();return}}}
 const bleOK=!!navigator.bluetooth;
-if(!bleOK){$('#bleNote').innerHTML+=' <br><span class="warn">Bu tarayıcıda Web Bluetooth yok. iPhone\'da Bluefy, Android ve bilgisayarda Chrome gerekir. Şu an demo modundasın.</span>'}
+if(!bleOK){$('#bleNote').innerHTML+=' <br><span class="warn">Bu tarayıcıda Web Bluetooth yok. iPhone\'da Bluefy, Android ve bilgisayarda Chrome gerekir.</span>'}
 $('#bleOn').onclick=async()=>{
   if(!bleOK){log('err','Web Bluetooth yok: iPhone\'da Bluefy, diğerlerinde Chrome ile aç.');return}
   try{dev=await navigator.bluetooth.requestDevice({acceptAllDevices:true,optionalServices:[SVC]});
@@ -628,7 +629,7 @@ $('#bleOn').onclick=async()=>{
     log('err','Bağlantı hatası: '+msg)}};
 $('#bleOff').onclick=()=>{if(dev&&dev.gatt.connected)dev.gatt.disconnect()};
 $('#bleInit').onclick=()=>send('InitNextion');
-log('sys','Demo modu: komutlar burada görünür, tekneye gitmez.');
+log('sys','Tekneye bağlı değil: bağlanınca komutlar gönderilir.');
 
 /* ---------- Hava durumu (Tuzla) ---------- */
 const WX_URL='https://api.open-meteo.com/v1/forecast?latitude=40.816&longitude=29.300&current=temperature_2m,wind_speed_10m,weather_code,is_day&wind_speed_unit=kn&timezone=Europe%2FIstanbul';
@@ -994,7 +995,7 @@ function drawWind(){const ok=WIND.sp!=null,k=ok?rzOf(WIND.dir):0;
 setInterval(()=>loadWind(false),60e3);
 function drawNav(){$('#sog').textContent=f1(NAV.sog);$('#gArc').setAttribute('stroke-dasharray',`${(193*Math.min(1,NAV.sog/40)).toFixed(1)} 289`);
   $('#cog').textContent=String(Math.round(NAV.cog)).padStart(3,'0')+'°';$('#lat').textContent=dm(NAV.lat,'K','G');$('#lon').textContent=dm(NAV.lon,'D','B');
-  $('#gpsSrc').textContent=NAV.src==='gps'?'Telefon GPS':'Demo seyir';if(NAV.src==='gps'&&WIND.at&&hav(WIND.at,[NAV.lat,NAV.lon])>5000)loadWind(true);
+  $('#gpsSrc').textContent=NAV.src==='gps'?'Telefon GPS':'Konum yok';if(NAV.src==='gps'&&WIND.at&&hav(WIND.at,[NAV.lat,NAV.lon])>5000)loadWind(true);
   const sec=(Date.now()-NAV.t0)/1000,h=sec/3600;$('#tDist').textContent=f2(NAV.dist/NM);$('#tTime').textContent=`${Math.floor(sec/3600)}:${String(Math.floor(sec/60)%60).padStart(2,'0')}`;
   $('#tMax').textContent=f1(NAV.max);$('#tAvg').textContent=f1(h>0?NAV.dist/NM/h:0)}
 const MAPKEY='tekne-harita-v1';let MAPCFG={base:'koyu',sea:true,iso:'',carto:'',mt:''};
@@ -1072,11 +1073,11 @@ $('#gpsBtn').onclick=()=>{if(gpsId!==null){navigator.geolocation.clearWatch(gpsI
     err=>{navigator.geolocation.clearWatch(gpsId);gpsId=null;NAV.src='demo';$('#gpsBtn').textContent="Telefon GPS'ini kullan";
       $('#mapNote').hidden=false;$('#mapNote').textContent=err.code===1?'Konum izni verilmedi. Bu önizlemede konum kapalı; GitHub Pages adresinde tarayıcı izin ister.':'Konum alınamadı: '+err.message},
     {enableHighAccuracy:true,maximumAge:1000,timeout:20000});
-  $('#gpsBtn').textContent='Demo seyre dön'};
+  $('#gpsBtn').textContent='GPS\'i kapat'};
 /* demo seyir: Tuzla marinadan çıkış, koyda tur */
 const ROUTE=[[40.8075,29.2920],[40.8070,29.2935],[40.7985,29.2810],[40.7925,29.2600],[40.7960,29.2400],[40.8060,29.2380],[40.8110,29.2560],[40.8100,29.2800],[40.8075,29.2920]];
 let rSeg=0,rT=0;
-setInterval(()=>{if(NAV.src!=='demo')return;if(RT.nav&&demoFollowRoute())return;const tgt=7+((rSeg>0&&rSeg<ROUTE.length-2)?14+4*Math.sin(Date.now()/9000):0);
+setInterval(()=>{return;/* sahte seyir kaldırıldı */if(RT.nav&&demoFollowRoute())return;const tgt=7+((rSeg>0&&rSeg<ROUTE.length-2)?14+4*Math.sin(Date.now()/9000):0);
   let step=tgt/KN*1;while(step>0){const a=ROUTE[rSeg],b=ROUTE[rSeg+1],L0=hav(a,b),left=L0*(1-rT);if(step<left){rT+=step/L0;step=0}else{step-=left;rT=0;rSeg=(rSeg+1)%(ROUTE.length-1)}}
   const a=ROUTE[rSeg],b=ROUTE[rSeg+1];onFix(a[0]+(b[0]-a[0])*rT,a[1]+(b[1]-a[1])*rT,tgt,brg(a,b))},1000);
 
@@ -1490,7 +1491,7 @@ const camTok=()=>{try{return localStorage.getItem('aksi-oturum')||''}catch(e){re
 const camLive=()=>!!camTok();
 function camUI(id,state,msg){const live=camLive(),v=$('#vid-'+id);
   $('#cv-'+id).hidden=live;v.hidden=!live;$('#ld-'+id).hidden=state!=='load'||!live;$('#err-'+id).hidden=state!=='err';if(msg)$('#errT-'+id).textContent=msg;
-  const ch=$('#camChip-'+id);ch.className='chip '+(!live?'demo':state==='play'?'live':'demo');ch.textContent=!live?'● Örnek':state==='play'?'● Canlı':state==='err'?'● Bağlantı yok':'● Bağlanıyor';
+  const ch=$('#camChip-'+id);ch.className='chip '+(!live?'demo':state==='play'?'live':'demo');ch.textContent=!live?'● Kapalı':state==='play'?'● Canlı':state==='err'?'● Bağlantı yok':'● Bağlanıyor';
   const s=CAMST[id];$('#osdB-'+id).textContent=!live?'ÖRNEK · 3B model görüntüsü':'CANLI · '+(CAMCFG.q==='hd'?'HD':'SD')+(s.vw?' · '+s.vw+'×'+s.vh:'')}
 function camStop(id){const s=CAMST[id],v=$('#vid-'+id);s.on=false;if(s.hls){s.hls.destroy();s.hls=null}v.pause();v.removeAttribute('src');try{v.load()}catch(e){}}
 async function camStart(id){const s=CAMST[id];if(s.on||s.busy||!camLive())return;s.busy=true;camUI(id,'load');
@@ -1513,7 +1514,7 @@ function applyCams(){$('#camPass').value=CAMCFG.pass;$('#camQ').value=CAMCFG.q;$
 $('#camSave').onclick=()=>{CAMCFG={pass:'',q:$('#camQ').value,ar:$('#camAr').value};try{localStorage.setItem(CAMKEY,JSON.stringify(CAMCFG))}catch(e){}applyCams();toast('Kameralar kaydedildi')};
 applyCams();
 document.addEventListener('visibilitychange',()=>{if(document.hidden)CAMS.forEach(c=>camStop(c.id))});
-function drawDemoCam(id){const cv=$('#cv-'+id),g=cv.getContext('2d'),W=cv.width,H=cv.height;
+function drawDemoCam(id){const cv=$('#cv-'+id),g=cv.getContext('2d'),W=cv.width,H=cv.height;g.fillStyle='#05060d';g.fillRect(0,0,W,H);g.fillStyle='#8c94c9';g.font='600 '+Math.round(H/14)+'px IBM Plex Sans,sans-serif';g.textAlign='center';g.textBaseline='middle';g.fillText('Görüntü için Aksi girişi gerekli',W/2,H/2);return;
   const sky=g.createLinearGradient(0,0,0,H);sky.addColorStop(0,'#0b1030');sky.addColorStop(.46,'#1c2a5e');sky.addColorStop(.47,'#0a1430');sky.addColorStop(1,'#040814');g.fillStyle=sky;g.fillRect(0,0,W,H);
   g.fillStyle='rgba(255,220,170,.5)';for(let i=0;i<14;i++){g.fillRect((i*137+(id==='on'?40:300))%W,H*.455,2+(i%3),2)}
   const src=window.camShot&&window.camShot(id);if(src){const sw=src.width,sh=src.height,ar=16/9;let cw=sw,ch=sw/ar;if(ch>sh){ch=sh;cw=sh*ar}g.drawImage(src,(sw-cw)/2,(sh-ch)/2,cw,ch,0,0,W,H)}
