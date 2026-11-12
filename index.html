@@ -1486,14 +1486,15 @@ CAMS.forEach(c=>{const el=$('#scr-'+c.id);let lt=0,lx=0,ly=0;
     if(now-lt<380&&Math.hypot(e.clientX-lx,e.clientY-ly)<40){lt=0;fire()}else{lt=now;lx=e.clientX;ly=e.clientY}});
   el.addEventListener('dblclick',e=>{if(e.target.closest('button'))return;e.preventDefault();fire()})});
 document.querySelectorAll('[data-retry]').forEach(b=>b.onclick=()=>{const s=CAMST[b.dataset.retry];s.fail=0;camStop(b.dataset.retry);camStart(b.dataset.retry)});
-const camLive=()=>!!CAMCFG.pass;
+const camTok=()=>{try{return localStorage.getItem('aksi-oturum')||''}catch(e){return ''}};
+const camLive=()=>!!(CAMCFG.pass||camTok());
 function camUI(id,state,msg){const live=camLive(),v=$('#vid-'+id);
   $('#cv-'+id).hidden=live;v.hidden=!live;$('#ld-'+id).hidden=state!=='load'||!live;$('#err-'+id).hidden=state!=='err';if(msg)$('#errT-'+id).textContent=msg;
   const ch=$('#camChip-'+id);ch.className='chip '+(!live?'demo':state==='play'?'live':'demo');ch.textContent=!live?'● Örnek':state==='play'?'● Canlı':state==='err'?'● Bağlantı yok':'● Bağlanıyor';
   const s=CAMST[id];$('#osdB-'+id).textContent=!live?'ÖRNEK · 3B model görüntüsü':'CANLI · '+(CAMCFG.q==='hd'?'HD':'SD')+(s.vw?' · '+s.vw+'×'+s.vh:'')}
 function camStop(id){const s=CAMST[id],v=$('#vid-'+id);s.on=false;if(s.hls){s.hls.destroy();s.hls=null}v.pause();v.removeAttribute('src');try{v.load()}catch(e){}}
 async function camStart(id){const s=CAMST[id];if(s.on||s.busy||!camLive())return;s.busy=true;camUI(id,'load');
-  try{const r=await fetch(CAMAPI+'/live?cam='+id,{headers:{'X-Key':CAMCFG.pass},cache:'no-store'});const j=await r.json().catch(()=>({}));
+  try{const r=await fetch(CAMAPI+'/live?cam='+id,{headers:CAMCFG.pass?{'X-Key':CAMCFG.pass}:{Authorization:'Bearer '+camTok()},cache:'no-store'});const j=await r.json().catch(()=>({}));
     if(!r.ok)throw new Error(r.status===401?'Kamera şifresi yanlış. Ayarlar → Kameralar.':(j.error||'Sunucu hatası'));
     const url=CAMCFG.q==='hd'?(j.hd||j.sd):(j.sd||j.hd);if(!url)throw new Error('Yayın adresi gelmedi');
     if(!isVis('kamera')){s.busy=false;camUI(id,'load');return}
