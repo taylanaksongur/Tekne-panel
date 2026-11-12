@@ -542,7 +542,7 @@ input[type=password]{width:100%;background:#151b40;border:1px solid var(--line);
 <script src="/Aksi/hesap.js"></script>
 <script src="/Aksi/esitle.js"></script>
 <script>/* Aksi girişi zorunlu: oturum ya da alan yetkisi yoksa Aksi giriş ekranına */
-(function(a){var h=window.hesap,git=function(){location.replace("/Aksi/")};if(!h){git();return}if(!h.koru(a))return;addEventListener("aksi-oturum-kapandi",git);h.ben().then(function(){if(!h.alanVar(a))git()}).catch(function(e){if(!e||!e.ag)git()})})("tekne")</script>
+(function(a){var h=window.hesap,git=function(){location.replace("/Aksi/?don="+encodeURIComponent(location.pathname))};if(!h){git();return}if(!h.koru(a))return;addEventListener("aksi-oturum-kapandi",git);h.ben().then(function(){if(!h.alanVar(a))git()}).catch(function(e){if(!e||!e.ag)git()})})("tekne")</script>
 <script>window.aksiEsitle&&aksiEsitle({alan:"tekne",anahtarlar:{"tekne-panel-v1":{},"tekne-ekran-v1":{},"tekne-harita-v1":{},"tekne-rota-v1":{},"tekne-kamera-v2":{gizli:["pass"]}}})</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
