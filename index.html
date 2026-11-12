@@ -526,7 +526,7 @@ input[type=password]{width:100%;background:#151b40;border:1px solid var(--line);
     <div class="card cam-set">
       <h3>Kameralar (Imou)</h3>
       <p class="note">Ön ve arka kamera Imou bulutundan canlı gelir; teknenin internete bağlı olması yeterli. Görüntü yalnızca Kamera ekranı açıkken akar, kapatınca durur. SD kalite 4G'de az veri harcar; HD daha net ama birkaç kat fazla veri ister. Şifre yalnızca bu cihazda saklanır. Şifre boşsa 3B modelden örnek görüntü gösterilir. Görüntüye çift dokununca tam ekran olur, tekrar çift dokununca geri döner. Görüntü basık ya da uzamış görünürse “Görüntü oranı”nı değiştir.</p>
-      <div class="two"><label class="f" for="camPass">Kamera şifresi<input type="password" id="camPass" placeholder="kamera köprüsü şifresi" autocomplete="off"></label><label class="f" for="camQ">Kalite<select id="camQ"><option value="sd">SD (az veri)</option><option value="hd">HD (4MP)</option></select></label></div>
+      <div class="two"><label class="f" for="camPass" hidden>Kamera şifresi<input type="password" id="camPass" placeholder="kamera köprüsü şifresi" autocomplete="off"></label><label class="f" for="camQ">Kalite<select id="camQ"><option value="sd">SD (az veri)</option><option value="hd">HD (4MP)</option></select></label></div>
       <div class="two"><label class="f" for="camAr">Görüntü oranı<select id="camAr"><option value="169">16:9 · kameranın kendi oranı</option><option value="src">Yayın nasıl geliyorsa</option><option value="43">4:3</option></select></label><span></span></div>
       <div class="row"><button class="btn" id="camSave" type="button">Kameraları kaydet</button></div>
     </div>
@@ -1449,7 +1449,7 @@ function demoFollowRoute(){if(RT.next>=RT.wps.length)return false;let p=demoPos&
 const CAMAPI='https://imou-kamera.aksongur.workers.dev';
 const CAMS=[{id:'on',name:'Ön kamera'},{id:'arka',name:'Arka kamera'}];
 const CAMKEY='tekne-kamera-v2';let CAMCFG={pass:'',q:'sd',ar:'169'};
-try{const j=JSON.parse(localStorage.getItem(CAMKEY)||'null');if(j)CAMCFG=Object.assign(CAMCFG,j)}catch(e){}
+try{const j=JSON.parse(localStorage.getItem(CAMKEY)||'null');if(j)CAMCFG=Object.assign(CAMCFG,j)}catch(e){}if(CAMCFG.pass){CAMCFG.pass='';try{localStorage.setItem(CAMKEY,JSON.stringify(CAMCFG))}catch(e){}}
 const CAMST={};CAMS.forEach(c=>CAMST[c.id]={hls:null,url:'',on:false,busy:false,fail:0,vw:0,vh:0});
 const FS_ICO='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>';
 $('#cams').innerHTML=CAMS.map(c=>`<div class="screen" id="scr-${c.id}"><canvas id="cv-${c.id}" width="960" height="540" aria-label="${c.name} görüntüsü"></canvas><video id="vid-${c.id}" muted playsinline webkit-playsinline autoplay disablepictureinpicture hidden aria-label="${c.name} canlı görüntü"></video>
@@ -1487,14 +1487,14 @@ CAMS.forEach(c=>{const el=$('#scr-'+c.id);let lt=0,lx=0,ly=0;
   el.addEventListener('dblclick',e=>{if(e.target.closest('button'))return;e.preventDefault();fire()})});
 document.querySelectorAll('[data-retry]').forEach(b=>b.onclick=()=>{const s=CAMST[b.dataset.retry];s.fail=0;camStop(b.dataset.retry);camStart(b.dataset.retry)});
 const camTok=()=>{try{return localStorage.getItem('aksi-oturum')||''}catch(e){return ''}};
-const camLive=()=>!!(CAMCFG.pass||camTok());
+const camLive=()=>!!camTok();
 function camUI(id,state,msg){const live=camLive(),v=$('#vid-'+id);
   $('#cv-'+id).hidden=live;v.hidden=!live;$('#ld-'+id).hidden=state!=='load'||!live;$('#err-'+id).hidden=state!=='err';if(msg)$('#errT-'+id).textContent=msg;
   const ch=$('#camChip-'+id);ch.className='chip '+(!live?'demo':state==='play'?'live':'demo');ch.textContent=!live?'● Örnek':state==='play'?'● Canlı':state==='err'?'● Bağlantı yok':'● Bağlanıyor';
   const s=CAMST[id];$('#osdB-'+id).textContent=!live?'ÖRNEK · 3B model görüntüsü':'CANLI · '+(CAMCFG.q==='hd'?'HD':'SD')+(s.vw?' · '+s.vw+'×'+s.vh:'')}
 function camStop(id){const s=CAMST[id],v=$('#vid-'+id);s.on=false;if(s.hls){s.hls.destroy();s.hls=null}v.pause();v.removeAttribute('src');try{v.load()}catch(e){}}
 async function camStart(id){const s=CAMST[id];if(s.on||s.busy||!camLive())return;s.busy=true;camUI(id,'load');
-  try{const r=await fetch(CAMAPI+'/live?cam='+id,{headers:CAMCFG.pass?{'X-Key':CAMCFG.pass}:{Authorization:'Bearer '+camTok()},cache:'no-store'});const j=await r.json().catch(()=>({}));
+  try{const r=await fetch(CAMAPI+'/live?cam='+id,{headers:{Authorization:'Bearer '+camTok()},cache:'no-store'});const j=await r.json().catch(()=>({}));
     if(!r.ok)throw new Error(r.status===401?'Kamera şifresi yanlış. Ayarlar → Kameralar.':(j.error||'Sunucu hatası'));
     const url=CAMCFG.q==='hd'?(j.hd||j.sd):(j.sd||j.hd);if(!url)throw new Error('Yayın adresi gelmedi');
     if(!isVis('kamera')){s.busy=false;camUI(id,'load');return}
@@ -1510,7 +1510,7 @@ async function camStart(id){const s=CAMST[id];if(s.on||s.busy||!camLive())return
 function camFail(id,msg){const s=CAMST[id];camStop(id);s.fail++;camUI(id,'err',msg);
   if(s.fail<3&&!/şifre/i.test(msg))setTimeout(()=>{if(isVis('kamera')&&!CAMST[id].on)camStart(id)},5000*s.fail)}
 function applyCams(){$('#camPass').value=CAMCFG.pass;$('#camQ').value=CAMCFG.q;$('#camAr').value=CAMCFG.ar||'169';CAMS.forEach(c=>{camStop(c.id);CAMST[c.id].fail=0;CAMST[c.id].vw=CAMST[c.id].vh=0;camUI(c.id,'load')});fitCams()}
-$('#camSave').onclick=()=>{CAMCFG={pass:$('#camPass').value.trim(),q:$('#camQ').value,ar:$('#camAr').value};try{localStorage.setItem(CAMKEY,JSON.stringify(CAMCFG))}catch(e){}applyCams();toast('Kameralar kaydedildi')};
+$('#camSave').onclick=()=>{CAMCFG={pass:'',q:$('#camQ').value,ar:$('#camAr').value};try{localStorage.setItem(CAMKEY,JSON.stringify(CAMCFG))}catch(e){}applyCams();toast('Kameralar kaydedildi')};
 applyCams();
 document.addEventListener('visibilitychange',()=>{if(document.hidden)CAMS.forEach(c=>camStop(c.id))});
 function drawDemoCam(id){const cv=$('#cv-'+id),g=cv.getContext('2d'),W=cv.width,H=cv.height;
