@@ -402,6 +402,7 @@ body.big .scene{padding:14px 13px;min-height:58px}
 body.big .fsb{width:44px;height:44px}
 body.big .sw-row button{width:38px;height:38px}
 body.big input[type=range]{height:34px}
+body.lay2 #hist{display:none}   /* ikili ekranda geçmiş grafiği yok */
 @media (min-width:1000px){body.big.lay2 header.top{grid-template-columns:auto auto minmax(0,1fr)}body.big.lay2 .hdr-right{flex-wrap:nowrap}body.big.lay2 .hsel{padding:10px 6px}}
 @container pane (max-width:540px){body.big #view-kontrol .side{width:auto}}
 @media (max-width:760px){body.big nav.tabs button{flex:1;padding:12px 8px;font-size:13px;letter-spacing:.05em}body.big header.top{gap:6px 8px}}
@@ -996,7 +997,11 @@ function init3D(){
   const VIEWS={genel:{t:[4.4,1.3,0],th:-0.55,ph:1.08,z:1},kokpit:{t:[0.9,1.3,0],th:-1.35,ph:1.0,z:0.52},bas:{t:[7.8,1.5,0],th:0.95,ph:0.98,z:0.55},ust:{t:[4.4,1.2,0],th:-0.35,ph:0.32,z:1}};
   let cur='genel';const target=new THREE.Vector3(...VIEWS.genel.t);let theta=VIEWS.genel.th,phi=VIEWS.genel.ph,zoom=1,baseR=16,anim=null;
   function fit(){const w=stage.clientWidth,h=stage.clientHeight;if(!w||!h)return;camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h,false);
-    const vf=camera.fov*Math.PI/360,hf=Math.atan(Math.tan(vf)*camera.aspect);baseR=Math.max(6.4/Math.tan(hf),3.4/Math.tan(vf))*1.05;needs=true}
+    /* ikili ekranda tekne, soldaki ışık panelinin sağında kalan boş alana ortalanır ve oraya sığdırılır */
+    let off=0;const sd=document.body.classList.contains('lay2')&&stage.parentElement.querySelector('.side');
+    if(sd&&getComputedStyle(sd).position==='absolute'){const sr=sd.getBoundingClientRect().right-stage.getBoundingClientRect().left;if(sr>0&&sr<w*.7)off=sr}
+    if(off)camera.setViewOffset(w,h,-off/2,0,w,h);else camera.clearViewOffset();
+    const vf=camera.fov*Math.PI/360,hf=Math.atan(Math.tan(vf)*(w-off)/h);baseR=Math.max(6.4/Math.tan(hf),3.4/Math.tan(vf))*1.05;needs=true}
   function placeCam(){const r=baseR*zoom;camera.position.set(target.x+r*Math.sin(phi)*Math.sin(theta),target.y+r*Math.cos(phi),target.z+r*Math.sin(phi)*Math.cos(theta));camera.lookAt(target)}
   new ResizeObserver(fit).observe(stage);fit();
   window.goView=v=>{cur=v;const V=VIEWS[v];let dth=V.th-theta;dth=Math.atan2(Math.sin(dth),Math.cos(dth));
