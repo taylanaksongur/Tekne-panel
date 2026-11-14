@@ -330,7 +330,8 @@ label.f{font-size:12px;color:var(--muted);display:grid;gap:5px}
 .anc-pill.on{display:inline-flex}.anc-pill.off{border-color:var(--line);color:var(--muted)}.anc-pill.warn{border-color:var(--warm);color:var(--warm)}
 body.big .anc-pill{font-size:14px;padding:11px 16px}
 .anc-pill.bad{border-color:var(--danger);color:var(--danger);animation:ancBlink 1s steps(2) infinite}
-.anc-ov{position:absolute;right:64px;bottom:10px;z-index:1100;width:262px;padding:12px;display:grid;gap:9px}
+.anc-ov{position:absolute;right:64px;bottom:10px;z-index:1100;width:262px;max-height:calc(100% - 20px);overflow:auto;padding:12px;display:grid;gap:9px;align-content:start}
+.map-wrap.anc-open .rt-ov{display:none}
 .anc-ov h4{margin:0;display:flex;justify-content:space-between;align-items:center;font-family:var(--f-display);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600}
 .anc-ov h4 .x{background:none;border:0;color:var(--muted);font-size:20px;line-height:1;padding:4px 8px}
 .anc-st{background:var(--panel-2);border-radius:10px;padding:8px 10px;display:grid;gap:2px}
@@ -618,8 +619,8 @@ const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',
 let toastT;function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>e.classList.remove('show'),1800)}
 /* ---------- Ortak uyarılar: Aksi ana ekranı 'aksi-uyarilar' anahtarını okur ---------- */
 const UYKEY='aksi-uyarilar',UYSON={},UYAKT={};
-function uyariOku(){let a;try{a=JSON.parse(localStorage.getItem(UYKEY)||'[]')}catch(e){a=[]}return Array.isArray(a)?a:[]}
-function uyariKaydet(a){while(a.length>50){let k=-1;a.forEach((x,i)=>{if(x&&x.bitti&&(k<0||x.t<a[k].t))k=i});if(k<0)a.forEach((x,i)=>{if(k<0||(x&&x.t<a[k].t))k=i});a.splice(k,1)}
+function uyariOku(){let a;try{a=JSON.parse(localStorage.getItem(UYKEY)||'[]')}catch(e){a=[]}return Array.isArray(a)?a.filter(x=>x&&typeof x==='object'&&typeof x.id==='string'):[]}
+function uyariKaydet(a){a=a.filter(x=>x&&typeof x==='object'&&typeof x.id==='string');const T=x=>+x.t||0;while(a.length>50){let k=-1;a.forEach((x,i)=>{if(x&&x.bitti&&(k<0||T(x)<T(a[k])))k=i});if(k<0)a.forEach((x,i)=>{if(k<0||T(x)<T(a[k]))k=i});a.splice(k,1)}
   try{localStorage.setItem(UYKEY,JSON.stringify(a))}catch(e){}}
 /* aktif: koşul sürüyor mu. Aynı id ile ekler/günceller; koşul bitince bitti:true yapar. */
 function uyari(id,aktif,mesaj,seviye){const sig=aktif?seviye+'|'+mesaj:'-';if(UYSON[id]===sig)return;UYSON[id]=sig;
@@ -670,8 +671,8 @@ function pushLight(id){const s=S[id],m=MAP[id];
   if(m.t==='sw'){if(!!swKnown[m.n]!==s.on){send('sw'+m.n);swKnown[m.n]=s.on}}
   else if(m.t==='dim')send(`APDIM${m.n}.val=${s.on?s.lv:0}`);
   else if(m.t==='rgb'){const c=new THREE.Color(s.col),k=s.on?s.lv/255:0,v=x=>Math.round(x*255*k);send(`APDIM5.val=${v(c.r)}\nAPDIM6.val=${v(c.g)}\nAPDIM7.val=${v(c.b)}`)}}
-let userOff=false;
-function setConn(state,name){const chip=$('#connChip'),dot=$('#stDot');if(state==='live')userOff=false;uyari('tekne-baglanti',state==='off'&&!userOff,'Bluetooth bağlantısı koptu','uyari');
+let userOff=false,connLive=false;
+function setConn(state,name){const chip=$('#connChip'),dot=$('#stDot');connLive=state==='live';setTimeout(uyEval,0);if(state==='live')userOff=false;uyari('tekne-baglanti',state==='off'&&!userOff,'Bluetooth bağlantısı koptu','uyari');
   chip.className='chip '+(state==='live'?'live':'demo');chip.textContent=state==='live'?'● Bağlı':'● Bağlı değil';
   dot.className=state==='live'?'live':state==='off'?'off':'';
   $('#stTxt').textContent=state==='live'?`Bağlı: ${name||'xRoute'}`:state==='off'?'Bağlantı koptu, komutlar gönderilmiyor':'Tekneye bağlı değil';
@@ -685,11 +686,12 @@ function drawBatt(){if(!teleLive){$('#cellFill').style.height='0%';$('#batPct').
   $('#eT1').textContent=f(BAT.t1)+'°';$('#eT2').textContent=f(BAT.t2)+'°';$('#eHum').textContent='%'+Math.round(BAT.hum);$('#ePre').textContent=Math.round(BAT.pre);
   $('#teleSrc').textContent='canlı';uyEval()}
 /* mevcut okumalardan uyarılar (aralık dışı değerler yok sayılır; eşiklerde histerezis var) */
-function uyEval(){const okT=v=>v>=-10&&v<=120;
-  const lowB=BAT.bat<25||(!!UYAKT['tekne-aku']&&BAT.bat<30);uyari('tekne-aku',lowB,`Akü düşük: %${Math.round(BAT.bat)}`,BAT.bat<15?'tehlike':'uyari');
-  const full=(id,v,txt)=>uyari(id,okT(v)&&(v>=90||(!!UYAKT[id]&&v>=85)),txt,'uyari');
-  full('tekne-kirli',BAT.g2,'Kirli su deposu dolmak üzere');full('tekne-gri',BAT.g3,'Gri su deposu dolmak üzere');
-  uyari('tekne-temiz',okT(BAT.g1)&&(BAT.g1<=10||(!!UYAKT['tekne-temiz']&&BAT.g1<=15)),'Temiz su azaldı','uyari')}
+function uyEval(){const now=Date.now(),fr=k=>connLive&&GOT[k]&&now-GOT[k]<30*60e3;/* bağlantı yokken ya da okuma bayatsa uyarı kapanır */
+  const okT=(v,k)=>fr(k)&&v>=-10&&v<=120;
+  const lowB=fr('bat')&&(BAT.bat<25||(!!UYAKT['tekne-aku']&&BAT.bat<30));uyari('tekne-aku',lowB,`Akü düşük: %${Math.round(BAT.bat)}`,BAT.bat<15?'tehlike':'uyari');
+  const full=(id,v,txt,k)=>uyari(id,okT(v,k)&&(v>=90||(!!UYAKT[id]&&v>=85)),txt,'uyari');
+  full('tekne-kirli',BAT.g2,'Kirli su deposu dolmak üzere','g2');full('tekne-gri',BAT.g3,'Gri su deposu dolmak üzere','g3');
+  uyari('tekne-temiz',okT(BAT.g1,'g1')&&(BAT.g1<=10||(!!UYAKT['tekne-temiz']&&BAT.g1<=15)),'Temiz su azaldı','uyari')}
 function handleLine(s){s=s.trim();if(!s)return;log('rx',s);let m;
   if((m=s.match(/^(?:M\.)?sw(\d+)(?:\.val)?=([01])$/))){const n=+m[1],v=m[2]==='1';swKnown[n]=v;
     DEFS.forEach(d=>{if(MAP[d.id].t==='sw'&&MAP[d.id].n===n)S[d.id].on=v});refresh();return}
@@ -713,7 +715,7 @@ function histTick(){if(!teleLive)return;const now=Date.now(),fr=k=>GOT[k]&&now-G
   const row=[Math.round(now/60000),fr('bat')?Math.round(BAT.bat):null,r10('v'),tk('g1'),tk('g2'),tk('g3'),r10('t1'),r10('t2')];
   HIST.h.push(row);const ld=HIST.d.length?HIST.d[HIST.d.length-1][0]*60000:0;if(now-ld>=D_STEP-60e3)HIST.d.push(row);
   histSave();histDraw()}
-setInterval(histTick,30e3);
+setInterval(histTick,30e3);setInterval(uyEval,30e3);
 const HC={m:'bat',r:'24'};
 const HSER={bat:[{i:1,c:'#36d39a',n:'Akü',u:'%',d:1}],
   tank:[{i:3,c:'#4fc3ff',n:'Temiz',u:'%',d:1},{i:5,c:'#8c94c9',n:'Gri',u:'%',d:1},{i:4,c:'#ffbf5e',n:'Kirli',u:'%',d:1}],
@@ -1199,9 +1201,9 @@ $('#resetTrip').onclick=()=>{NAV.dist=0;NAV.max=0;NAV.t0=Date.now();if(trail)tra
 function startGps(){if(gpsId!==null)return;if(!navigator.geolocation){toast('Bu tarayıcıda konum yok');ANC.pending=false;return}
   gpsId=navigator.geolocation.watchPosition(p=>{if(NAV.src!=='gps'){NAV.src='gps';NAV.last=null;if(trail)trail.setLatLngs([]);NAV.dist=0;NAV.max=0;NAV.t0=Date.now()}
       const c=p.coords;NAV.acc=c.accuracy;onFix(c.latitude,c.longitude,c.speed!=null&&!isNaN(c.speed)?c.speed*KN:null,c.heading)},
-    err=>{navigator.geolocation.clearWatch(gpsId);gpsId=null;ANC.pending=false;
-      if(ANC.armed&&err.code!==1){setTimeout(startGps,3000);return}/* demir nöbetinde konum geçici kesilirse yeniden dene */
-      NAV.src='demo';$('#gpsBtn').textContent="Telefon GPS'ini kullan";
+    err=>{navigator.geolocation.clearWatch(gpsId);gpsId=null;
+      if((ANC.armed||ANC.pending)&&err.code!==1){setTimeout(startGps,3000);return}/* demir nöbetinde konum geçici kesilirse yeniden dene */
+      ANC.pending=false;NAV.src='demo';$('#gpsBtn').textContent="Telefon GPS'ini kullan";
       $('#mapNote').hidden=false;$('#mapNote').textContent=err.code===1?'Konum izni verilmedi. Bu önizlemede konum kapalı; GitHub Pages adresinde tarayıcı izin ister.':'Konum alınamadı: '+err.message},
     {enableHighAccuracy:true,maximumAge:1000,timeout:20000});
   $('#gpsBtn').textContent='GPS\'i kapat'}
@@ -1210,7 +1212,7 @@ $('#gpsBtn').onclick=()=>{if(gpsId!==null){navigator.geolocation.clearWatch(gpsI
 
 /* ---------- Demir alarmı (telefon/tablet GPS'i, sayfa açıkken) ---------- */
 const ANCKEY='tekne-demir-v1';
-const ANC={set:false,lat:0,lon:0,r:50,armed:false,pending:false,pendT:0,armT:Date.now(),lastFix:0,dist:null,out:0,kind:'',snooze:0,trk:[],circ:null,mk:null,tr:null,ringing:false,sty:''};
+const ANC={set:false,lat:0,lon:0,r:50,armed:false,pending:false,pendT:0,armT:Date.now(),lastFix:0,dist:null,out:0,win:[],latch:false,kind:'',snooze:0,trk:[],circ:null,mk:null,tr:null,ringing:false,sty:''};
 try{const j=JSON.parse(localStorage.getItem(ANCKEY)||'null');if(j){ANC.r=Math.max(20,Math.min(200,+j.r||50));if(j.set&&isFinite(j.lat)&&isFinite(j.lon)){ANC.set=true;ANC.lat=+j.lat;ANC.lon=+j.lon;ANC.armed=!!j.armed;ANC.trk=[[ANC.lat,ANC.lon]]}}}catch(e){}
 const saveAnc=()=>{try{localStorage.setItem(ANCKEY,JSON.stringify({set:ANC.set,lat:ANC.lat,lon:ANC.lon,r:ANC.r,armed:ANC.armed}))}catch(e){}};
 /* ses: iOS için kullanıcı dokunuşuyla başlatılmış AudioContext */
@@ -1234,19 +1236,23 @@ function ancDraw(){if(!map||!LF)return;
   if(!ANC.circ){ANC.circ=LF.circle(ll,Object.assign({radius:ANC.r,interactive:false},st)).addTo(map);ANC.mk=LF.marker(ll,{icon:ancIcon(),interactive:false,keyboard:false,zIndexOffset:400}).addTo(map);ANC.tr=LF.polyline(ANC.trk,{color:'#4fc3ff',weight:2.5,opacity:.9,interactive:false}).addTo(map)}
   else{ANC.circ.setLatLng(ll);ANC.circ.setRadius(ANC.r);ANC.mk.setLatLng(ll);if(ANC.sty!==col)ANC.circ.setStyle(st)}
   ANC.sty=col}
-function ancSet(lat,lon){ANC.set=true;ANC.lat=lat;ANC.lon=lon;ANC.armed=true;ANC.out=0;ANC.kind='';ANC.snooze=0;ANC.armT=Date.now();ANC.dist=0;ANC.trk=[[lat,lon]];saveAnc();wlOn();
+function ancRst(){ANC.out=0;ANC.win=[];ANC.latch=false}
+function ancSet(lat,lon){ANC.set=true;ANC.lat=lat;ANC.lon=lon;ANC.armed=true;ancRst();ANC.kind='';ANC.snooze=0;ANC.armT=Date.now();ANC.dist=0;ANC.trk=[[lat,lon]];saveAnc();wlOn();
   if(ANC.tr){ANC.tr.setLatLngs(ANC.trk)}ancDraw();if(map&&ANC.circ){follow=false;$('#followBtn').setAttribute('aria-pressed','false');map.fitBounds(ANC.circ.getBounds().pad(.4))}
   toast('Demir atıldı · '+ANC.r+' m');ancLoop()}
 function ancTick(lat,lon){ANC.lastFix=Date.now();
-  if(ANC.pending){ANC.pending=false;ancSet(lat,lon);return}
+  if(ANC.pending){if(NAV.acc>25)return;/* kaba ilk fix: doğruluk ≤25 m olana dek demir atılmaz */ANC.pending=false;ancSet(lat,lon);return}
   if(!ANC.set)return;ANC.dist=hav([ANC.lat,ANC.lon],[lat,lon]);
   const lt=ANC.trk[ANC.trk.length-1];if(!lt||hav(lt,[lat,lon])>=3){ANC.trk.push([lat,lon]);if(ANC.trk.length>1500)ANC.trk.splice(0,ANC.trk.length-1500);if(ANC.tr)ANC.tr.setLatLngs(ANC.trk)}
-  if(ANC.armed){if(ANC.dist>ANC.r){if(!(NAV.acc>60))ANC.out++}else if(ANC.dist<=ANC.r*.9)ANC.out=0}
+  if(ANC.armed){const acc=isFinite(NAV.acc)?NAV.acc:0,now=Date.now();
+    if(ANC.dist<=ANC.r*.9)ancRst();/* içeri döndü */
+    else{ANC.win.push({o:ANC.dist-acc>ANC.r,t:now});if(ANC.win.length>5)ANC.win.shift();/* son 5 fix: doğruluk payı düşülmüş mesafe */
+      const o=ANC.win.filter(x=>x.o);ANC.out=o.length;if(!ANC.latch&&o.length>=3&&ANC.win[ANC.win.length-1].o&&o[o.length-1].t-o[0].t>=5000)ANC.latch=true}}
   ancLoop()}
 function ancLoop(){const now=Date.now();
-  if(ANC.pending&&now-ANC.pendT>40000){ANC.pending=false;toast('Konum alınamadı, demir atılamadı')}
+  if(ANC.pending&&now-ANC.pendT>90000){ANC.pending=false;toast('GPS doğruluğu yetmedi, demir atılamadı')}
   const lost=ANC.set&&ANC.armed?(now-Math.max(ANC.lastFix,ANC.armT))/1000:0;
-  let kind='';if(ANC.set&&ANC.armed){if(ANC.out>=2)kind='sur';else if(lost>120)kind='gps'}
+  let kind='';if(ANC.set&&ANC.armed){if(ANC.latch)kind='sur';else if(lost>120)kind='gps'}
   if(kind!==ANC.kind){ANC.kind=kind;ANC.snooze=0}
   const ring=!!kind&&now>=ANC.snooze;
   if(ring&&!ANC.ringing){sirenOn();if(!audOk())toast('Ses kapalı: ekrana bir kez dokun')}
@@ -1260,7 +1266,7 @@ function ancLoop(){const now=Date.now();
   uyari('demir-gps',ANC.set&&ANC.armed&&lost>45,'Demir alarmı: GPS konumu gelmiyor',lost>120?'tehlike':'uyari');
   /* panel ve çip */
   const pill=$('#ancPill'),st=$('#ancSt');let cls,txt,sub;
-  if(ANC.pending){cls='warn';txt='⚓ Konum bekleniyor…';sub='GPS konumu bekleniyor'}
+  if(ANC.pending){cls='warn';txt='⚓ Konum bekleniyor…';sub=NAV.acc>25?'GPS zayıf, doğruluk '+Math.round(NAV.acc)+' m (≤25 m bekleniyor)':'GPS konumu bekleniyor'}
   else if(!ANC.set){cls='';txt='';sub='Demir atılmadı'}
   else if(!ANC.armed){cls='off';txt='⚓ Alarm kapalı';sub='Alarm kapalı · demir noktası kayıtlı'}
   else if(kind){cls='bad';txt=kind==='sur'?`⚓ SÜRÜKLÜYOR ${away} m`:'⚓ GPS yok';sub=kind==='sur'?'Sınır aşıldı'+(ring?'':' · sessiz'):'GPS konumu gelmiyor'+(ring?'':' · sessiz')}
@@ -1276,14 +1282,14 @@ setInterval(ancLoop,1000);
 const ancOpen=o=>{$('#ancOv').hidden=!o;$('.map-wrap').classList.toggle('anc-open',o);if(o)ancLoop()};
 $('#ancBtn').onclick=()=>{closeMapMenu();ancOpen($('#ancOv').hidden)};$('#ancPill').onclick=()=>ancOpen(true);$('#ancX').onclick=()=>ancOpen(false);
 $('#ancDrop').onclick=()=>{audUnlock();wlOn();
-  if(NAV.src==='gps'&&Date.now()-ANC.lastFix<20000){ancSet(NAV.lat,NAV.lon);return}
+  if(NAV.src==='gps'&&Date.now()-ANC.lastFix<20000&&!(NAV.acc>25)){ancSet(NAV.lat,NAV.lon);return}
   ANC.pending=true;ANC.pendT=Date.now();startGps();ancLoop()};
-$('#ancArm').onclick=()=>{ANC.armed=!ANC.armed;ANC.out=0;ANC.armT=Date.now();ANC.snooze=0;if(ANC.armed){audUnlock();wlOn();if(gpsId===null)startGps()}else wlOff();saveAnc();ancLoop()};
+$('#ancArm').onclick=()=>{ANC.armed=!ANC.armed;ancRst();ANC.armT=Date.now();ANC.snooze=0;if(ANC.armed){audUnlock();wlOn();if(gpsId===null)startGps()}else wlOff();saveAnc();ancLoop()};
 $('#ancR').oninput=e=>{ANC.r=+e.target.value;$('#ancRv').textContent=ANC.r+' m';saveAnc();ancLoop()};
 $('#ancTest').onclick=()=>{audUnlock();setTimeout(()=>{beep();setTimeout(beep,650);if(!audOk())toast('Ses başlatılamadı: tarayıcı izni gerekebilir')},150)};
-$('#ancLift').onclick=()=>{ANC.set=false;ANC.armed=false;ANC.pending=false;ANC.out=0;ANC.trk=[];ANC.dist=null;saveAnc();wlOff();ancLoop();toast('Demir kaldırıldı')};
+$('#ancLift').onclick=()=>{ANC.set=false;ANC.armed=false;ANC.pending=false;ancRst();ANC.trk=[];ANC.dist=null;saveAnc();wlOff();ancLoop();toast('Demir kaldırıldı')};
 $('#ancMute').onclick=()=>{ANC.snooze=Date.now()+120000;ancLoop();toast('Alarm 2 dk susturuldu; tekne hâlâ sınır dışındaysa yeniden çalar')};
-$('#ancOff').onclick=()=>{ANC.armed=false;ANC.out=0;saveAnc();wlOff();ancLoop()};
+$('#ancOff').onclick=()=>{ANC.armed=false;ancRst();saveAnc();wlOff();ancLoop()};
 $('#ancR').value=ANC.r;$('#ancRv').textContent=ANC.r+' m';
 if(ANC.set&&ANC.armed){wlOn();startGps()}
 ancLoop();
@@ -1646,7 +1652,7 @@ async function fixRoute(onlyLand,only){if(RT.busy||RT.wps.length<2)return;RT.bus
   finally{RT.busy=false;RT.step='';routeChanged()}}
 function closeMapMenu(){const m=$('#mapMenu');if(m.hidden)return false;m.hidden=true;$('#menuBtn').setAttribute('aria-expanded','false');return true}
 $('#menuBtn').onclick=()=>{const m=$('#mapMenu');m.hidden=!m.hidden;$('#menuBtn').setAttribute('aria-expanded',String(!m.hidden))};
-$('#rtBtn').onclick=()=>{closeMapMenu();RT.planning=!RT.planning;if(RT.planning){RT.nav=false;follow=false;$('#followBtn').setAttribute('aria-pressed','false')}routeChanged()};
+$('#rtBtn').onclick=()=>{closeMapMenu();ancOpen(false);RT.planning=!RT.planning;if(RT.planning){RT.nav=false;follow=false;$('#followBtn').setAttribute('aria-pressed','false')}routeChanged()};
 /* seyir sırasında: sıradaki noktaya varınca ilerle */
 function navTick(){if(!navLine)return;if(!RT.nav||RT.next>=RT.wps.length){navLine.setLatLngs([]);return}
   const here=[NAV.lat,NAV.lon],nx=RT.wps[RT.next].p;
