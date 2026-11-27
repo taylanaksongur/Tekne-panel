@@ -1760,7 +1760,7 @@ setInterval(()=>{if(isVis('harita')||curTab==='ayarlar')diag()},1000);
 function syncMapUI(){$('#baseSel').value=MAPCFG.base;$('#baseSel2').value=MAPCFG.base;$('#seaBtn').setAttribute('aria-pressed',MAPCFG.sea);$('#isoSel').value=MAPCFG.iso||'';$('#mtKey').value=MAPCFG.mt||'';$('#cartoKey').value=MAPCFG.carto}
 $('#baseSel').onchange=e=>{MAPCFG.base=e.target.value;saveMapCfg();syncMapUI();applyBase()};
 /* AIS: yakın gemiler (test modu: ?ais=1 ile açılır, ?ais=0 kapatır) */
-const AIS={on:false,nm:5,url:localStorage.getItem('tp-ais-url')||'',grp:null,ring:null,mk:new Map(),t:null,busy:false};
+const AIS={on:false,nm:5,url:localStorage.getItem('tp-ais-url')||'https://aksi-ais.aksongur.workers.dev',grp:null,ring:null,mk:new Map(),t:null,busy:false};
 (()=>{const q=new URLSearchParams(location.search).get('ais');if(q==='1')localStorage.setItem('tp-ais-test','1');if(q==='0')localStorage.removeItem('tp-ais-test');
   if(localStorage.getItem('tp-ais-test')==='1'){$('#aisBtn').hidden=false}})();
 function aisStop(){clearInterval(AIS.t);AIS.t=null;if(AIS.grp)AIS.grp.clearLayers();AIS.mk.clear();if(AIS.ring&&map)map.removeLayer(AIS.ring);AIS.ring=null}
