@@ -1,8 +1,8 @@
 // Aksi AIS: aisstream.io -> Cloudflare Worker -> harita
 const VARSAYILAN = { lat: 40.862, lon: 29.144 };
 const KUTU_NM = 12;            // en buyuk yaricap (10) + pay
-const ESKI_MS = 10 * 60e3;     // bu sureden eski gemi silinir
-const BOSTA_MS = 2 * 60e3;     // istek gelmezse baglanti kapanir
+const ESKI_MS = 30 * 60e3;     // demirli gemiler seyrek yayinlar
+const BOSTA_MS = 15 * 60e3;    // istek gelmezse baglanti kapanir
 const KONUM_TIPLERI = ["PositionReport", "StandardClassBPositionReport", "ExtendedClassBPositionReport"];
 
 export function uzaklikNm(a, b) {
