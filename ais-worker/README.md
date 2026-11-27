@@ -1,9 +1,12 @@
 # AIS katmanı (yakın gemiler)
-1. aisstream.io'da ücretsiz hesap aç, API anahtarı al.
-2. Bu klasörde: `npx wrangler login`, ardından `npx wrangler deploy`
-3. `npx wrangler secret put AIS_KEY` (anahtarı yalnızca buraya yapıştır)
-4. Paneli test modunda aç: https://aksi.systems/Tekne-panel/?ais=1
-5. Menü → "Yakın gemiler (AIS)" → deploy çıktısındaki workers.dev adresini gir.
-Test modunu kapatmak için: ?ais=0
+Yayınlama GitHub Actions ile ("AIS Worker yayınla").
+
+Bir kez: GitHub → tekne-panel → Settings → Secrets and variables → Actions → New repository secret
+- AIS_KEY: aisstream.io API anahtarı
+- CLOUDFLARE_API_TOKEN: Cloudflare → My Profile → API Tokens → "Edit Cloudflare Workers" şablonu
+- CLOUDFLARE_ACCOUNT_ID: Cloudflare Workers sayfasındaki Account ID
+
+Sonra Actions → "AIS Worker yayınla" → Run workflow. Log'daki workers.dev adresini panelde gir:
+https://aksi.systems/Tekne-panel/?ais=1 → Menü → Yakın gemiler (AIS). Test modunu kapatmak: ?ais=0
 
 Not: Seyir/çarpışma önleme için güvenilmez; AIS yayını yapmayan tekneler görünmez.
