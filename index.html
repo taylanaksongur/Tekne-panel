@@ -450,7 +450,7 @@ input[type=password]{width:100%;background:#151b40;border:1px solid var(--line);
       <select class="hsel" id="p1Sel" aria-label="1. ekran" hidden><option value="kontrol">1: Kontrol</option><option value="harita">1: Harita</option><option value="kamera">1: Kamera</option></select>
       <select class="hsel" id="p2Sel" aria-label="2. ekran" hidden><option value="kontrol">2: Kontrol</option><option value="harita">2: Harita</option><option value="kamera">2: Kamera</option></select>
       <span class="chip demo" id="connChip">● Bağlı değil</span>
-      <span class="chip ver" title="Sürüm" style="background:transparent;border:1px solid var(--line,#2c3670);color:var(--muted,#8c94c9);font-family:var(--f-mono,'IBM Plex Mono',monospace)">v1.5</span>
+      <span class="chip ver" title="Sürüm" style="background:transparent;border:1px solid var(--line,#2c3670);color:var(--muted,#8c94c9);font-family:var(--f-mono,'IBM Plex Mono',monospace)">v1.6</span>
       <button type="button" class="icobtn" id="fsBtn" aria-label="Tam ekran" title="Tam ekran"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
     </div>
   </header>
@@ -655,16 +655,17 @@ function uyariCip(){const el=document.getElementById('uyChips');if(!el)return;co
 /* ---------- Işıklar ve xRoute kanalları ---------- */
 const XSW=["Tuvalet","Buzdolabı","Hidrofor","Ortam Isıtıcı","Su Isıtıcı","Usb","İnverter","Redresör","Tv","Fırın","Lamba","Ocak","Aspiratör","Okuma Lambası","Basamak","Bulaşık Makinesi"];
 const DEFS=[
-  {id:'kokpit',name:'Kokpit spotları',zone:'kokpit',map:{t:'dim',n:2}},
-  {id:'basamak',name:'Basamak',zone:'kokpit',map:{t:'sw',n:15}},
+  {id:'kokpit',name:'Kokpit spotları',zone:'kokpit',map:{t:'sw',n:2}},
+  {id:'basamak',name:'Basamak',zone:'kokpit',map:{t:'sw',n:3}},
   {id:'kic',name:'Kıç platform',zone:'kokpit',map:{t:'dim',n:4}},
   {id:'salon',name:'Salon tavan',zone:'salon',map:{t:'dim',n:1}},
   {id:'lamba',name:'Lamba',zone:'salon',map:{t:'sw',n:11}},
   {id:'kamara',name:'Kamara',zone:'kamara',map:{t:'dim',n:3}},
   {id:'okuma',name:'Okuma lambası',zone:'kamara',map:{t:'sw',n:14}},
   {id:'rgb',name:'Gövde ambiyans',zone:'dis',map:{t:'rgb'}},
-  {id:'demir',name:'Demir feneri',zone:'dis',map:{t:'none'}},
-  {id:'seyir',name:'Seyir fenerleri',zone:'dis',map:{t:'none'}}
+  {id:'demir',name:'Demir feneri',zone:'dis',map:{t:'sw',n:5}},
+  {id:'seyir',name:'Seyir fenerleri',zone:'dis',map:{t:'sw',n:4}},
+  {id:'sualti',name:'Su altı',zone:'dis',map:{t:'sw',n:1}}
 ];
 const DEF=Object.fromEntries(DEFS.map(d=>[d.id,d]));
 const MAP={},S={};
@@ -672,6 +673,8 @@ DEFS.forEach(d=>{MAP[d.id]={...d.map};S[d.id]={on:false,lv:200,col:'#33aaff'}});
 
 const KEY='tekne-panel-v1';
 try{const j=JSON.parse(localStorage.getItem(KEY)||'null');if(j){for(const id in j.map||{})if(MAP[id])MAP[id]=j.map[id];for(const id in j.st||{})if(S[id])Object.assign(S[id],j.st[id])}}catch(e){}
+/* 28 Kas 2026 teknede doğrulanan kanallar, kayıtlı eski tahminlerin üzerine bir kez yazılır */
+try{if(!localStorage.getItem('tekne-esle-281126')){['kokpit','basamak','demir','seyir','sualti'].forEach(id=>MAP[id]={...DEF[id].map});localStorage.setItem('tekne-esle-281126','1');setTimeout(save,0)}}catch(e){}
 function save(){try{localStorage.setItem(KEY,JSON.stringify({map:MAP,st:S}))}catch(e){}}
 const mapLabel=m=>m.t==='sw'?`sw${m.n}`:m.t==='dim'?`Dimmer ${m.n}`:m.t==='rgb'?'RGB 5–7':'atanmadı';
 const lvOf=id=>{const s=S[id],m=MAP[id];return !s.on?0:(m.t==='dim'||m.t==='rgb')?s.lv/255:1};
