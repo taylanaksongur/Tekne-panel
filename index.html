@@ -450,7 +450,7 @@ input[type=password]{width:100%;background:#151b40;border:1px solid var(--line);
       <select class="hsel" id="p1Sel" aria-label="1. ekran" hidden><option value="kontrol">1: Kontrol</option><option value="harita">1: Harita</option><option value="kamera">1: Kamera</option></select>
       <select class="hsel" id="p2Sel" aria-label="2. ekran" hidden><option value="kontrol">2: Kontrol</option><option value="harita">2: Harita</option><option value="kamera">2: Kamera</option></select>
       <span class="chip demo" id="connChip">● Bağlı değil</span>
-      <span class="chip ver" title="Sürüm" style="background:transparent;border:1px solid var(--line,#2c3670);color:var(--muted,#8c94c9);font-family:var(--f-mono,'IBM Plex Mono',monospace)">v1.2</span>
+      <span class="chip ver" title="Sürüm" style="background:transparent;border:1px solid var(--line,#2c3670);color:var(--muted,#8c94c9);font-family:var(--f-mono,'IBM Plex Mono',monospace)">v1.3</span>
       <button type="button" class="icobtn" id="fsBtn" aria-label="Tam ekran" title="Tam ekran"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
     </div>
   </header>
@@ -575,6 +575,9 @@ input[type=password]{width:100%;background:#151b40;border:1px solid var(--line);
         <div class="row"><label class="note" for="bleMode">Yazma türü</label><select class="hsel" id="bleMode"><option value="oto">Otomatik</option><option value="yanitsiz">Yanıtsız</option><option value="yanitli">Yanıtlı</option></select></div>
         <p class="note" id="bleNote">Servis <code>FFE0</code>, karakteristik <code>FFE1</code>. Bağlanınca <code>InitNextion</code> gönderilir ve ünite tüm durumları bildirir. Test ederken telefondaki xRoute uygulamasını kapat.</p>
         <div class="log" id="log" aria-live="polite"></div>
+        <h3 style="margin-top:14px">Kanal testi</h3>
+        <p class="note">Her düğme tek komut gönderir. Bas, teknede hangi ışığın değiştiğine bak, sonra Işık eşleştirme'den doğru kanalı seç. <code>swN</code> her basışta aç/kapat yapar.</p>
+        <div class="row" id="kanalTest" style="flex-wrap:wrap;gap:6px"></div>
       </div>
       <div class="card">
         <h3>Senaryolar</h3>
@@ -680,10 +683,11 @@ function log(cls,txt){const el=$('#log');const d=document.createElement('div');d
 const bekle=ms=>new Promise(r=>setTimeout(r,ms));
 /* HM-10 tipi modüller yanıtsız yazar; "Otomatik" karakteristiğin desteklediğini seçer, Ayarlar'dan zorlanabilir */
 const yazmaTuru=c=>{const m=($('#bleMode')||{}).value;if(m==='yanitli'||m==='yanitsiz')return m;
-  return c.properties&&c.properties.writeWithoutResponse&&c.writeValueWithoutResponse?'yanitsiz':'yanitli'};
+  return c.writeValueWithoutResponse&&!c._yanitsizYok?'yanitsiz':'yanitli'};
 const TURAD={yanitli:'yanıtlı',yanitsiz:'yanıtsız'};
 async function yaz(c,p,t){for(let d=0;;d++){try{
-    if(t==='yanitsiz')return await c.writeValueWithoutResponse(p);
+    if(t==='yanitsiz'){try{return await c.writeValueWithoutResponse(p)}
+      catch(e){if(/NotSupported|not support|property/i.test(e.name+' '+e.message)&&($('#bleMode')||{}).value!=='yanitsiz'){c._yanitsizYok=true;log('sys','Yanıtsız yazma desteklenmiyor, yanıtlıya geçildi');t='yanitli'}else throw e}}
     if(c.writeValueWithResponse)return await c.writeValueWithResponse(p);
     return await c.writeValue(p)}
   catch(e){if(d>=3||!/in progress/i.test(e.message))throw e;await bekle(100)}}}
@@ -793,6 +797,9 @@ $('#bleOn').onclick=async()=>{
     log('err','Bağlantı hatası: '+msg)}};
 $('#bleOff').onclick=()=>{if(dev&&dev.gatt.connected){userOff=true;dev.gatt.disconnect()}};
 $('#bleInit').onclick=()=>send('InitNextion');
+(()=>{const k=$('#kanalTest'),ek=(t,c)=>{const b=document.createElement('button');b.type='button';b.className='btn ghost small';b.textContent=t;b.onclick=()=>send(c);k.appendChild(b)};
+  for(let n=1;n<=16;n++)ek('sw'+n,'sw'+n);
+  for(let n=1;n<=7;n++){ek(`Dim ${n} aç`,`APDIM${n}.val=255`);ek(`Dim ${n} kapa`,`APDIM${n}.val=0`)}})();
 try{$('#bleMode').value=localStorage.getItem('tekne-ble-yazma')||'oto'}catch(e){}
 $('#bleMode').onchange=()=>{try{localStorage.setItem('tekne-ble-yazma',$('#bleMode').value)}catch(e){}log('sys','Yazma türü ayarı: '+$('#bleMode').selectedOptions[0].text)};
 $('#logCopy').onclick=async()=>{try{await navigator.clipboard.writeText(LOGK.join('\n'));toast('Günlük kopyalandı')}catch(e){log('err','Kopyalanamadı: '+e.message)}};
