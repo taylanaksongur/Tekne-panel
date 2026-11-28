@@ -450,7 +450,7 @@ input[type=password]{width:100%;background:#151b40;border:1px solid var(--line);
       <select class="hsel" id="p1Sel" aria-label="1. ekran" hidden><option value="kontrol">1: Kontrol</option><option value="harita">1: Harita</option><option value="kamera">1: Kamera</option></select>
       <select class="hsel" id="p2Sel" aria-label="2. ekran" hidden><option value="kontrol">2: Kontrol</option><option value="harita">2: Harita</option><option value="kamera">2: Kamera</option></select>
       <span class="chip demo" id="connChip">● Bağlı değil</span>
-      <span class="chip ver" title="Sürüm" style="background:transparent;border:1px solid var(--line,#2c3670);color:var(--muted,#8c94c9);font-family:var(--f-mono,'IBM Plex Mono',monospace)">v1.6</span>
+      <span class="chip ver" title="Sürüm" style="background:transparent;border:1px solid var(--line,#2c3670);color:var(--muted,#8c94c9);font-family:var(--f-mono,'IBM Plex Mono',monospace)">v1.7</span>
       <button type="button" class="icobtn" id="fsBtn" aria-label="Tam ekran" title="Tam ekran"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
     </div>
   </header>
@@ -657,12 +657,12 @@ const XSW=["Tuvalet","Buzdolabı","Hidrofor","Ortam Isıtıcı","Su Isıtıcı",
 const DEFS=[
   {id:'kokpit',name:'Kokpit spotları',zone:'kokpit',map:{t:'sw',n:2}},
   {id:'basamak',name:'Basamak',zone:'kokpit',map:{t:'sw',n:3}},
-  {id:'kic',name:'Kıç platform',zone:'kokpit',map:{t:'dim',n:4}},
-  {id:'salon',name:'Salon tavan',zone:'salon',map:{t:'dim',n:1}},
-  {id:'lamba',name:'Lamba',zone:'salon',map:{t:'sw',n:11}},
-  {id:'kamara',name:'Kamara',zone:'kamara',map:{t:'dim',n:3}},
-  {id:'okuma',name:'Okuma lambası',zone:'kamara',map:{t:'sw',n:14}},
-  {id:'rgb',name:'Gövde ambiyans',zone:'dis',map:{t:'rgb'}},
+  {id:'kic',name:'Kıç platform',zone:'kokpit',map:{t:'none'}},
+  {id:'salon',name:'Salon tavan',zone:'salon',map:{t:'none'}},
+  {id:'lamba',name:'Lamba',zone:'salon',map:{t:'none'}},
+  {id:'kamara',name:'Kamara',zone:'kamara',map:{t:'none'}},
+  {id:'okuma',name:'Okuma lambası',zone:'kamara',map:{t:'none'}},
+  {id:'rgb',name:'Gövde ambiyans',zone:'dis',map:{t:'none'}},
   {id:'demir',name:'Demir feneri',zone:'dis',map:{t:'sw',n:5}},
   {id:'seyir',name:'Seyir fenerleri',zone:'dis',map:{t:'sw',n:4}},
   {id:'sualti',name:'Su altı',zone:'dis',map:{t:'sw',n:1}}
@@ -675,6 +675,8 @@ const KEY='tekne-panel-v1';
 try{const j=JSON.parse(localStorage.getItem(KEY)||'null');if(j){for(const id in j.map||{})if(MAP[id])MAP[id]=j.map[id];for(const id in j.st||{})if(S[id])Object.assign(S[id],j.st[id])}}catch(e){}
 /* 28 Kas 2026 teknede doğrulanan kanallar, kayıtlı eski tahminlerin üzerine bir kez yazılır */
 try{if(!localStorage.getItem('tekne-esle-281126')){['kokpit','basamak','demir','seyir','sualti'].forEach(id=>MAP[id]={...DEF[id].map});localStorage.setItem('tekne-esle-281126','1');setTimeout(save,0)}}catch(e){}
+try{if(!localStorage.getItem('tekne-esle-281126b')){['kic','salon','lamba','kamara','okuma','rgb'].forEach(id=>{MAP[id]={t:'none'};S[id].on=false});localStorage.setItem('tekne-esle-281126b','1');setTimeout(save,0)}}catch(e){}
+const atandi=id=>MAP[id]&&MAP[id].t!=='none',AKT=()=>DEFS.filter(d=>atandi(d.id));
 function save(){try{localStorage.setItem(KEY,JSON.stringify({map:MAP,st:S}))}catch(e){}}
 const mapLabel=m=>m.t==='sw'?`sw${m.n}`:m.t==='dim'?`Dimmer ${m.n}`:m.t==='rgb'?'RGB 5–7':'atanmadı';
 const lvOf=id=>{const s=S[id],m=MAP[id];return !s.on?0:(m.t==='dim'||m.t==='rgb')?s.lv/255:1};
@@ -803,9 +805,13 @@ $('#bleOn').onclick=async()=>{
     log('err','Bağlantı hatası: '+msg)}};
 $('#bleOff').onclick=()=>{if(dev&&dev.gatt.connected){userOff=true;dev.gatt.disconnect()}};
 $('#bleInit').onclick=()=>send('InitNextion');
-(()=>{const k=$('#kanalTest'),ek=(t,c)=>{const b=document.createElement('button');b.type='button';b.className='btn ghost small';b.textContent=t;b.onclick=()=>send(c);k.appendChild(b)};
-  for(let n=1;n<=16;n++)ek('sw'+n,'sw'+n);
-  for(let n=1;n<=7;n++){ek(`Dim ${n} aç`,`APDIM${n}.val=255`);ek(`Dim ${n} kapa`,`APDIM${n}.val=0`)}})();
+function renderKanal(){const k=$('#kanalTest');if(!k)return;k.innerHTML='';const ek=(el,t,c)=>{const b=document.createElement('button');b.type='button';b.className='btn ghost small';b.textContent=t;b.onclick=()=>send(c);el.appendChild(b)};
+  AKT().forEach(d=>{const m=MAP[d.id];if(m.t==='sw')ek(k,`${d.name} (sw${m.n})`,'sw'+m.n);else if(m.t==='dim'){ek(k,`${d.name} aç`,`APDIM${m.n}.val=255`);ek(k,`${d.name} kapa`,`APDIM${m.n}.val=0`)}});
+  const dt=document.createElement('details');dt.style.cssText='flex-basis:100%;margin-top:6px';dt.innerHTML='<summary class="note">Tüm kanallar (yeni ışık bulmak için)</summary>';
+  const w=document.createElement('div');w.className='row';w.style.cssText='flex-wrap:wrap;gap:6px;margin-top:6px';dt.appendChild(w);k.appendChild(dt);
+  for(let n=1;n<=16;n++)ek(w,'sw'+n,'sw'+n);
+  for(let n=1;n<=7;n++){ek(w,`Dim ${n} aç`,`APDIM${n}.val=255`);ek(w,`Dim ${n} kapa`,`APDIM${n}.val=0`)}}
+renderKanal();
 try{$('#bleMode').value=localStorage.getItem('tekne-ble-yazma')||'oto'}catch(e){}
 try{$('#bleEnd').value=localStorage.getItem('tekne-ble-son2')||'lf'}catch(e){}
 $('#bleEnd').onchange=()=>{try{localStorage.setItem('tekne-ble-son2',$('#bleEnd').value)}catch(e){}log('sys','Satır sonu: '+$('#bleEnd').selectedOptions[0].text)};
@@ -1096,12 +1102,12 @@ function init3D(){
 const ICON_BULB='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10.5c.8.8 1 1.5 1 2.5h6c0-1 .2-1.7 1-2.5A6 6 0 0 0 12 3z"/></svg>';
 const CHEV='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>';
 const SWATCH=['#ffffff','#ffb35a','#33aaff','#2bd4c4','#7a5cff','#ff4d8d'];
-function toggle(id,force){const s=S[id];s.on=force===undefined?!s.on:force;if(s.on&&s.lv<12)s.lv=200;pushLight(id);refresh();toast(`${DEF[id].name} ${s.on?'açıldı':'kapatıldı'}`)}
-function renderZones(){const lit=DEFS.filter(d=>S[d.id].on).length;
-  const sliders=DEFS.filter(d=>S[d.id].on&&(MAP[d.id].t==='dim'||MAP[d.id].t==='rgb')).map(d=>`<div class="lvl"><label for="lv-${d.id}">${esc(d.name)} <b>%${Math.round(S[d.id].lv/2.55)}</b></label><input type="range" id="lv-${d.id}" min="8" max="255" value="${S[d.id].lv}" data-lv="${d.id}"></div>`
+function toggle(id,force){if(!atandi(id))return;const s=S[id];s.on=force===undefined?!s.on:force;if(s.on&&s.lv<12)s.lv=200;pushLight(id);refresh();toast(`${DEF[id].name} ${s.on?'açıldı':'kapatıldı'}`)}
+function renderZones(){const AD=AKT(),lit=AD.filter(d=>S[d.id].on).length;
+  const sliders=AD.filter(d=>S[d.id].on&&(MAP[d.id].t==='dim'||MAP[d.id].t==='rgb')).map(d=>`<div class="lvl"><label for="lv-${d.id}">${esc(d.name)} <b>%${Math.round(S[d.id].lv/2.55)}</b></label><input type="range" id="lv-${d.id}" min="8" max="255" value="${S[d.id].lv}" data-lv="${d.id}"></div>`
     +(MAP[d.id].t==='rgb'?`<div class="sw-row">${SWATCH.map(c=>`<button type="button" aria-label="Renk ${c}" data-col="${c}" data-id="${d.id}" style="background:${c};color:${c}" aria-pressed="${S[d.id].col.toLowerCase()===c}"></button>`).join('')}<input type="color" id="col-${d.id}" data-cp="${d.id}" value="${S[d.id].col}" aria-label="Özel renk"></div>`:'')).join('');
-  $('#roomsOv').innerHTML=`<div class="ov-head"><strong>Işıklar</strong><small class="${lit?'lit':''}">${lit}/${DEFS.length} açık</small></div>
-  <div class="rm-units">${DEFS.map(d=>`<button type="button" class="ubtn${S[d.id].on?' on':''}" data-t="${d.id}" aria-pressed="${S[d.id].on}">${ICON_BULB}<span>${esc(d.name)}</span><small>${mapLabel(MAP[d.id])}</small></button>`).join('')}</div>${sliders?`<div class="rm-body" style="padding:2px 0 0">${sliders}</div>`:''}`}
+  $('#roomsOv').innerHTML=`<div class="ov-head"><strong>Işıklar</strong><small class="${lit?'lit':''}">${lit}/${AD.length} açık</small></div>
+  <div class="rm-units">${AD.length?'':'<small class="note">Atanmış ışık yok · Ayarlar → Işık eşleştirme</small>'}${AD.map(d=>`<button type="button" class="ubtn${S[d.id].on?' on':''}" data-t="${d.id}" aria-pressed="${S[d.id].on}">${ICON_BULB}<span>${esc(d.name)}</span><small>${mapLabel(MAP[d.id])}</small></button>`).join('')}</div>${sliders?`<div class="rm-body" style="padding:2px 0 0">${sliders}</div>`:''}`}
 $('#roomsOv').addEventListener('click',e=>{const t=e.target.closest('[data-t]');if(t){toggle(t.dataset.t);return}
   const c=e.target.closest('[data-col]');if(c){S[c.dataset.id].col=c.dataset.col;pushLight(c.dataset.id);refresh()}});
 $('#roomsOv').addEventListener('input',e=>{const id=e.target.dataset.lv;if(id){S[id].lv=+e.target.value;e.target.previousElementSibling.querySelector('b').textContent='%'+Math.round(S[id].lv/2.55);needs=true}
@@ -1110,18 +1116,19 @@ $('#roomsOv').addEventListener('change',e=>{const id=e.target.dataset.lv||e.targ
 function renderMaps(){const opts=m=>{const o=[['none:0','Atanmamış (sadece görünüm)']];for(let i=1;i<=4;i++)o.push([`dim:${i}`,`Dimmer ${i} (APDIM${i})`]);o.push(['rgb:0','RGB (APDIM5–7)']);
     XSW.forEach((n,i)=>o.push([`sw:${i+1}`,`sw${i+1} · ${n}`]));const v=`${m.t}:${m.n||0}`;return o.map(([k,t])=>`<option value="${k}"${k===v?' selected':''}>${esc(t)}</option>`).join('')};
   $('#maps').innerHTML=DEFS.map(d=>{return`<div class="map"><i style="background:var(--warm)"></i><div><strong>${esc(d.name)}</strong></div><select id="map-${d.id}" data-map="${d.id}" aria-label="${esc(d.name)} kanalı">${opts(MAP[d.id])}</select></div>`}).join('')}
-$('#maps').addEventListener('change',e=>{const id=e.target.dataset.map;if(!id)return;const[t,n]=e.target.value.split(':');MAP[id]={t,n:+n};save();renderZones();toast(`${DEF[id].name}: ${mapLabel(MAP[id])}`)});
+$('#maps').addEventListener('change',e=>{const id=e.target.dataset.map;if(!id)return;const[t,n]=e.target.value.split(':');MAP[id]={t,n:+n};if(t==='none')S[id].on=false;save();renderZones();renderScenes();renderKanal();needs=true;toast(`${DEF[id].name}: ${mapLabel(MAP[id])}`)});
 const SCENES=[
   {name:'Akşam yemeği',sub:'Kokpit ve salon sıcak',c:'linear-gradient(135deg,#b8642a,#6b3a1c)',set:{kokpit:[1,150],salon:[1,180],lamba:[0],kic:[1,90],basamak:[1],kamara:[0],okuma:[0],rgb:[1,200,'#ffb35a'],demir:[0],seyir:[0]}},
   {name:'Demirde gece',sub:'Demir feneri ve kamara',c:'linear-gradient(135deg,#2b3a8a,#151b45)',set:{kokpit:[0],salon:[0],lamba:[0],kic:[0],basamak:[1],kamara:[1,80],okuma:[0],rgb:[0],demir:[1],seyir:[0]}},
   {name:'Seyir',sub:'Seyir fenerleri, iç karanlık',c:'linear-gradient(135deg,#1f7a57,#123d34)',set:{kokpit:[0],salon:[0],lamba:[0],kic:[0],basamak:[0],kamara:[0],okuma:[0],rgb:[0],demir:[0],seyir:[1]}},
   {name:'Parti',sub:'Ambiyans ve spotlar',c:'linear-gradient(135deg,#7a3cff,#2a1a6b)',set:{kokpit:[1,255],salon:[1,120],kic:[1,255],basamak:[1],rgb:[1,255,'#7a5cff']}},
   {name:'Hepsi kapalı',sub:'Tüm ışıklar',c:'linear-gradient(135deg,#3a4170,#1e2349)',set:Object.fromEntries(DEFS.map(d=>[d.id,[0]]))}];
-$('#scenes').innerHTML=SCENES.map((s,i)=>`<button type="button" class="scene" data-sc="${i}" style="--sc:${s.c}">${ICON_BULB}<span><strong>${s.name}</strong><small>${s.sub}</small></span></button>`).join('');
+function renderScenes(){$('#scenes').innerHTML=SCENES.map((s,i)=>Object.keys(s.set).some(atandi)?`<button type="button" class="scene" data-sc="${i}" style="--sc:${s.c}">${ICON_BULB}<span><strong>${s.name}</strong><small>${s.sub}</small></span></button>`:'').join('')}
+renderScenes();
 $('#scenes').addEventListener('click',e=>{const b=e.target.closest('[data-sc]');if(!b)return;const sc=SCENES[+b.dataset.sc];
-  for(const id in sc.set){const[on,lv,col]=sc.set[id];S[id].on=!!on;if(lv)S[id].lv=lv;if(col)S[id].col=col;pushLight(id)}refresh();toast(sc.name+' uygulandı')});
-$('#allOn').onclick=()=>{DEFS.forEach(d=>{if(d.id==='seyir'||d.id==='demir')return;S[d.id].on=true;pushLight(d.id)});refresh();toast('İç ve kokpit ışıkları açıldı')};
-$('#allOff').onclick=()=>{DEFS.forEach(d=>{S[d.id].on=false;pushLight(d.id)});refresh();toast('Tüm ışıklar kapatıldı')};
+  for(const id in sc.set){if(!atandi(id))continue;const[on,lv,col]=sc.set[id];S[id].on=!!on;if(lv)S[id].lv=lv;if(col)S[id].col=col;pushLight(id)}refresh();toast(sc.name+' uygulandı')});
+$('#allOn').onclick=()=>{AKT().forEach(d=>{if(d.id==='seyir'||d.id==='demir')return;S[d.id].on=true;pushLight(d.id)});refresh();toast('İç ve kokpit ışıkları açıldı')};
+$('#allOff').onclick=()=>{AKT().forEach(d=>{S[d.id].on=false;pushLight(d.id)});refresh();toast('Tüm ışıklar kapatıldı')};
 function refresh(){renderZones();save();needs=true}
 let curTab='kontrol';
 const LAYKEY='tekne-ekran-v1';let LAY={n:1,p1:'kontrol',p2:'harita'};
