@@ -450,7 +450,7 @@ input[type=password]{width:100%;background:#151b40;border:1px solid var(--line);
       <select class="hsel" id="p1Sel" aria-label="1. ekran" hidden><option value="kontrol">1: Kontrol</option><option value="harita">1: Harita</option><option value="kamera">1: Kamera</option></select>
       <select class="hsel" id="p2Sel" aria-label="2. ekran" hidden><option value="kontrol">2: Kontrol</option><option value="harita">2: Harita</option><option value="kamera">2: Kamera</option></select>
       <span class="chip demo" id="connChip">● Bağlı değil</span>
-      <span class="chip ver" title="Sürüm" style="background:transparent;border:1px solid var(--line,#2c3670);color:var(--muted,#8c94c9);font-family:var(--f-mono,'IBM Plex Mono',monospace)">v1.7</span>
+      <span class="chip ver" title="Sürüm" style="background:transparent;border:1px solid var(--line,#2c3670);color:var(--muted,#8c94c9);font-family:var(--f-mono,'IBM Plex Mono',monospace)">v1.8</span>
       <button type="button" class="icobtn" id="fsBtn" aria-label="Tam ekran" title="Tam ekran"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
     </div>
   </header>
@@ -578,6 +578,12 @@ input[type=password]{width:100%;background:#151b40;border:1px solid var(--line);
         <h3 style="margin-top:14px">Kanal testi</h3>
         <p class="note">Her düğme tek komut gönderir. Bas, teknede hangi ışığın değiştiğine bak, sonra Işık eşleştirme'den doğru kanalı seç. <code>swN</code> her basışta aç/kapat yapar.</p>
         <div class="row" id="kanalTest" style="flex-wrap:wrap;gap:6px"></div>
+      </div>
+      <div class="card">
+        <h3>USB GPS</h3>
+        <div class="stat"><i id="usbgDot"></i><span id="usbgSt">USB GPS bağlı değil</span></div>
+        <div class="row"><button class="btn" id="usbgBtn" type="button">USB GPS bağla</button></div>
+        <p class="note">GPS alıcısını tablete USB (OTG) ile tak, düğmeye bas ve listeden seç. İzin bir kez verilir; sonra takınca ve sayfa açılınca kendiliğinden bağlanır. GPS Connect gibi uygulamalar cihazı tutuyorsa kapat; Android "hangi uygulamayla açılsın" diye sorarsa hiçbirini varsayılan yapma. Android'de Chrome gerekir.</p>
       </div>
       <div class="card">
         <h3>Senaryolar</h3>
@@ -1188,7 +1194,7 @@ function drawWind(){const ok=WIND.sp!=null,k=ok?rzOf(WIND.dir):0;
 setInterval(()=>loadWind(false),60e3);
 function drawNav(){$('#sog').textContent=f1(NAV.sog);$('#gArc').setAttribute('stroke-dasharray',`${(193*Math.min(1,NAV.sog/40)).toFixed(1)} 289`);
   $('#cog').textContent=String(Math.round(NAV.cog)).padStart(3,'0')+'°';$('#lat').textContent=dm(NAV.lat,'K','G');$('#lon').textContent=dm(NAV.lon,'D','B');
-  $('#gpsSrc').textContent=NAV.src==='gps'?'Telefon GPS':'Konum yok';if(NAV.src==='gps'&&WIND.at&&hav(WIND.at,[NAV.lat,NAV.lon])>5000)loadWind(true);
+  $('#gpsSrc').textContent=NAV.src==='gps'?(typeof USBG!=='undefined'&&USBG.on?'USB GPS':'Tablet GPS'):'Konum yok';if(NAV.src==='gps'&&WIND.at&&hav(WIND.at,[NAV.lat,NAV.lon])>5000)loadWind(true);
   const sec=(Date.now()-NAV.t0)/1000,h=sec/3600;$('#tDist').textContent=f2(NAV.dist/NM);$('#tTime').textContent=`${Math.floor(sec/3600)}:${String(Math.floor(sec/60)%60).padStart(2,'0')}`;
   $('#tMax').textContent=f1(NAV.max);$('#tAvg').textContent=f1(h>0?NAV.dist/NM/h:0)}
 const MAPKEY='tekne-harita-v1';let MAPCFG={base:'koyu',sea:true,iso:'',carto:'',mt:''};
@@ -1259,8 +1265,8 @@ function showMap0(){if(!LF){$('#mapNote').hidden=false;$('#mapNote').textContent
 new ResizeObserver(()=>{if(map)map.invalidateSize()}).observe($('#map'));
 $('#followBtn').onclick=e=>{follow=!follow;e.currentTarget.setAttribute('aria-pressed',follow);if(follow&&map)map.panTo([NAV.lat,NAV.lon])};
 $('#resetTrip').onclick=()=>{NAV.dist=0;NAV.max=0;NAV.t0=Date.now();if(trail)trail.setLatLngs([]);drawNav();toast('Seyir sıfırlandı')};
-function startGps(){if(gpsId!==null)return;if(!navigator.geolocation){toast('Bu tarayıcıda konum yok');ANC.pending=false;return}
-  gpsId=navigator.geolocation.watchPosition(p=>{if(NAV.src!=='gps'){NAV.src='gps';NAV.last=null;if(trail)trail.setLatLngs([]);NAV.dist=0;NAV.max=0;NAV.t0=Date.now()}
+function startGps(){if(gpsId!==null||USBG.on)return;if(!navigator.geolocation){toast('Bu tarayıcıda konum yok');ANC.pending=false;return}
+  gpsId=navigator.geolocation.watchPosition(p=>{if(USBG.on)return;if(NAV.src!=='gps'){NAV.src='gps';NAV.last=null;if(trail)trail.setLatLngs([]);NAV.dist=0;NAV.max=0;NAV.t0=Date.now()}
       const c=p.coords;NAV.acc=c.accuracy;onFix(c.latitude,c.longitude,c.speed!=null&&!isNaN(c.speed)?c.speed*KN:null,c.heading)},
     err=>{navigator.geolocation.clearWatch(gpsId);gpsId=null;
       if((ANC.armed||ANC.pending)&&err.code!==1){setTimeout(startGps,3000);return}/* demir nöbetinde konum geçici kesilirse yeniden dene */
@@ -1268,8 +1274,84 @@ function startGps(){if(gpsId!==null)return;if(!navigator.geolocation){toast('Bu 
       $('#mapNote').hidden=false;$('#mapNote').textContent=err.code===1?'Konum izni verilmedi. Bu önizlemede konum kapalı; GitHub Pages adresinde tarayıcı izin ister.':'Konum alınamadı: '+err.message},
     {enableHighAccuracy:true,maximumAge:1000,timeout:20000});
   $('#gpsBtn').textContent='GPS\'i kapat'}
-$('#gpsBtn').onclick=()=>{if(gpsId!==null){navigator.geolocation.clearWatch(gpsId);gpsId=null;NAV.src='demo';$('#gpsBtn').textContent="Telefon GPS'ini kullan";NAV.last=null;drawNav();if(ANC.armed)toast('Demir alarmı açık: GPS kapalıyken alarm çalışmaz');return}
+$('#gpsBtn').onclick=()=>{if(USBG.on){toast('USB GPS kullanılıyor · Ayarlar → USB GPS');return}if(gpsId!==null){navigator.geolocation.clearWatch(gpsId);gpsId=null;NAV.src='demo';$('#gpsBtn').textContent="Telefon GPS'ini kullan";NAV.last=null;drawNav();if(ANC.armed)toast('Demir alarmı açık: GPS kapalıyken alarm çalışmaz');return}
   startGps()};
+
+/* ---------- USB GPS (WebUSB; Android Chrome'da Web Serial yok, sürücü burada) ----------
+   Desteklenen yongalar: CDC-ACM (u-blox vb.), Prolific PL2303, Silabs CP210x, WCH CH340/341, FTDI.
+   İzin bir kez verilir; sonra takılınca ve sayfa açılınca kendiliğinden bağlanır. NMEA RMC/GGA okunur. */
+const USBG={on:false,dev:null,tip:'',baud:0,t:0,sat:null,hdop:null,fix:false,stop:false,n:0,txt:''};
+const USB_VID={0x067b:'pl2303',0x10c4:'cp210x',0x1a86:'ch34x',0x0403:'ftdi'};
+const usbEtiket=t=>({cdc:'CDC-ACM',pl2303:'Prolific PL2303',cp210x:'Silabs CP210x',ch34x:'WCH CH340',ftdi:'FTDI'}[t]||t);
+function usbDurum(msg){USBG.txt=msg;const e=$('#usbgSt');if(e)e.textContent=msg;const b=$('#usbgBtn');if(b)b.textContent=USBG.on?'USB GPS\'i kes':'USB GPS bağla';
+  const d=$('#usbgDot');if(d)d.className=USBG.on&&USBG.fix&&Date.now()-USBG.t<5000?'live':USBG.on?'':'off'}
+const vOut=(d,req,val,idx,data)=>d.controlTransferOut({requestType:'vendor',recipient:'device',request:req,value:val,index:idx},data);
+const vIn=(d,req,val,idx,len)=>d.controlTransferIn({requestType:'vendor',recipient:'device',request:req,value:val,index:idx},len);
+const lineCoding=b=>{const a=new Uint8Array(7);new DataView(a.buffer).setUint32(0,b,true);a[4]=0;a[5]=0;a[6]=8;return a};
+function usbUclar(d){/* toplu (bulk) giriş/çıkış uç noktası olan arayüz */
+  for(const itf of d.configuration.interfaces)for(const alt of itf.alternates){const i=alt.endpoints.find(e=>e.type==='bulk'&&e.direction==='in');
+    if(i)return{itf:itf.interfaceNumber,inEp:i.endpointNumber,pk:i.packetSize||64,cls:alt.interfaceClass}}return null}
+async function usbHazirla(d,tip,baud,u){
+  if(tip==='cdc'){const com=d.configuration.interfaces.find(x=>x.alternates[0].interfaceClass===2);const ci=com?com.interfaceNumber:u.itf;
+    if(com&&ci!==u.itf)try{await d.claimInterface(ci)}catch(e){}
+    try{await d.controlTransferOut({requestType:'class',recipient:'interface',request:0x20,value:0,index:ci},lineCoding(baud))}catch(e){}
+    try{await d.controlTransferOut({requestType:'class',recipient:'interface',request:0x22,value:3,index:ci})}catch(e){}}
+  else if(tip==='pl2303'){const r=(v)=>vIn(d,1,v,0,1).catch(()=>{}),w=(v,i)=>vOut(d,1,v,i).catch(()=>{});
+    await r(0x8484);await w(0x0404,0);await r(0x8484);await r(0x8383);await r(0x8484);await w(0x0404,1);await r(0x8484);await r(0x8383);await w(0,1);await w(1,0);await w(2,0x44);
+    await d.controlTransferOut({requestType:'class',recipient:'interface',request:0x20,value:0,index:0},lineCoding(baud));
+    await d.controlTransferOut({requestType:'class',recipient:'interface',request:0x22,value:3,index:0}).catch(()=>{})}
+  else if(tip==='cp210x'){const o=(req,val,data)=>d.controlTransferOut({requestType:'vendor',recipient:'interface',request:req,value:val,index:u.itf},data);
+    await o(0x00,1);const b=new Uint8Array(4);new DataView(b.buffer).setUint32(0,baud,true);await o(0x1E,0,b);await o(0x03,0x0800);await o(0x07,0x0303).catch(()=>{})}
+  else if(tip==='ch34x'){await vIn(d,0x5f,0,0,2).catch(()=>{});await vOut(d,0xa1,0,0);
+    let f=Math.floor(1532620800/baud),dv=3;while(f>0xfff0&&dv>0){f>>=3;dv--}f=0x10000-f;dv|=0x80;
+    await vOut(d,0x9a,0x1312,(f&0xff00)|dv);await vOut(d,0x9a,0x0f2c,f&0xff);await vOut(d,0x9a,0x2518,0xc3);await vOut(d,0xa4,0xff&~0x60,0).catch(()=>{})}
+  else if(tip==='ftdi'){const ix=u.itf+1;await vOut(d,0,0,ix);/* reset */
+    const div=3000000/baud,ip=Math.floor(div),fr=[0,3,2,4,1,5,6,7][Math.round((div-ip)*8)&7];const v=(ip|(fr<<14))&0xffff,hi=(fr>>2)&1;
+    await vOut(d,3,v,(hi<<8)|ix);await vOut(d,4,8,ix);await vOut(d,2,0,ix).catch(()=>{})}}
+/* NMEA */
+const nmeaOk=s=>{const m=s.match(/^\$([^*]+)\*([0-9A-F]{2})/i);if(!m)return false;let c=0;for(const ch of m[1])c^=ch.charCodeAt(0);return c===parseInt(m[2],16)};
+const nmeaKoor=(v,h)=>{if(!v)return NaN;const dot=v.indexOf('.'),dd=parseFloat(v.slice(0,dot-2)),mm=parseFloat(v.slice(dot-2));const x=dd+mm/60;return h==='S'||h==='W'?-x:x};
+function nmeaSatir(s){if(!nmeaOk(s))return false;const f=s.slice(1,s.indexOf('*')).split(','),k=f[0].slice(2);
+  if(k==='GGA'){USBG.sat=+f[7]||0;USBG.hdop=f[8]?+f[8]:null;USBG.fix=+f[6]>0}
+  else if(k==='RMC'){USBG.fix=f[2]==='A';if(!USBG.fix)return true;const lat=nmeaKoor(f[3],f[4]),lon=nmeaKoor(f[5],f[6]);if(!isFinite(lat)||!isFinite(lon))return true;
+    const sog=f[7]!==''?+f[7]:null,cog=f[8]!==''&&sog>0.4?+f[8]:null;USBG.t=Date.now();USBG.n++;
+    if(NAV.src!=='gps'){NAV.src='gps';NAV.last=null;if(typeof trail!=='undefined'&&trail)trail.setLatLngs([]);NAV.dist=0;NAV.max=0;NAV.t0=Date.now()}
+    NAV.acc=USBG.hdop!=null?Math.max(3,USBG.hdop*5):10;/* HDOP'tan kaba doğruluk (m) */
+    onFix(lat,lon,sog,cog)}
+  return true}
+async function usbOku(d,tip,u,dene){/* dene>0: o kadar ms içinde geçerli NMEA gelmezse false */
+  const dec=new TextDecoder('ascii');let buf='',ok=false;const t0=Date.now();
+  while(USBG.dev===d&&!USBG.stop){if(dene&&!ok&&Date.now()-t0>dene)return false;
+    let r;try{r=await d.transferIn(u.inEp,tip==='ftdi'?u.pk*8:Math.max(64,u.pk))}catch(e){if(USBG.dev===d)throw e;return ok}
+    if(r.status==='stall'){await d.clearHalt('in',u.inEp).catch(()=>{});continue}
+    let by=new Uint8Array(r.data.buffer,r.data.byteOffset,r.data.byteLength);
+    if(tip==='ftdi'){const p=[];for(let i=0;i<by.length;i+=u.pk)p.push(...by.subarray(i+2,Math.min(i+u.pk,by.length)));by=Uint8Array.from(p)}/* FTDI her paketin başına 2 durum baytı koyar */
+    if(!by.length)continue;buf+=dec.decode(by);let i;
+    while((i=buf.search(/[\r\n]/))>=0){const s=buf.slice(0,i).trim();buf=buf.slice(i+1);if(s[0]==='$'&&nmeaSatir(s)&&!ok){ok=true;if(dene)return true}}
+    if(buf.length>400)buf='';if(ok&&USBG.n%5===0)usbDurum(usbYazi())}
+  return ok}
+const usbYazi=()=>`${usbEtiket(USBG.tip)}${USBG.baud&&USBG.tip!=='cdc'?' · '+USBG.baud+' baud':''} · ${USBG.fix?'konum var':'uydu aranıyor'}${USBG.sat!=null?' · '+USBG.sat+' uydu':''}${USBG.hdop!=null?' · HDOP '+String(USBG.hdop).replace('.',','):''}`;
+async function usbBaslat(d){if(USBG.dev&&USBG.dev!==d)return;
+  try{USBG.stop=false;USBG.dev=d;if(!d.opened)await d.open();if(!d.configuration)await d.selectConfiguration(1);
+    const u=usbUclar(d);if(!u)throw new Error('Veri ucu bulunamadı');
+    const tip=USB_VID[d.vendorId]||'cdc';USBG.tip=tip;try{await d.claimInterface(u.itf)}catch(e){throw new Error('Cihaz başka bir uygulamada açık olabilir (GPS Connect?): '+e.message)}
+    USBG.on=true;if(gpsId!==null){navigator.geolocation.clearWatch(gpsId);gpsId=null}$('#gpsBtn').textContent='USB GPS bağlı';
+    const hizlar=tip==='cdc'?[9600]:[...new Set([+localStorage.getItem('tekne-usbgps-baud')||9600,9600,4800,38400,115200])];
+    for(const b of hizlar){USBG.baud=b;usbDurum(`${usbEtiket(tip)} · ${b} baud deneniyor…`);await usbHazirla(d,tip,b,u);
+      if(await usbOku(d,tip,u,tip==='cdc'?6000:3000)){try{localStorage.setItem('tekne-usbgps-baud',b)}catch(e){}usbDurum(usbYazi());toast('USB GPS bağlandı');await usbOku(d,tip,u,0);return}}
+    usbDurum(`${usbEtiket(tip)} bağlandı ama NMEA verisi gelmedi`);
+    await usbOku(d,tip,u,0)}
+  catch(e){if(USBG.dev===d){usbDurum('USB GPS hatası: '+e.message)}}
+  finally{if(USBG.dev===d){USBG.dev=null;USBG.on=false;USBG.fix=false;try{if(d.opened)await d.close()}catch(e){}if(!/hatası/.test(USBG.txt))usbDurum('USB GPS bağlı değil');$('#gpsBtn').textContent="Telefon GPS'ini kullan"}}}
+async function usbKes(){const d=USBG.dev;USBG.stop=true;USBG.dev=null;USBG.on=false;USBG.fix=false;try{if(d&&d.opened)await d.close()}catch(e){}try{if(d&&d.forget)await d.forget()}catch(e){}usbDurum('USB GPS kesildi; yeniden bağlamak için düğmeye bas')}
+if('usb' in navigator){
+  navigator.usb.addEventListener('connect',e=>{if(!USBG.dev)usbBaslat(e.device)});
+  navigator.usb.addEventListener('disconnect',e=>{if(USBG.dev===e.device){USBG.dev=null;USBG.on=false;USBG.fix=false;usbDurum('USB GPS çıkarıldı');$('#gpsBtn').textContent="Telefon GPS'ini kullan"}});
+  navigator.usb.getDevices().then(ds=>{if(ds.length)usbBaslat(ds[0]);else usbDurum('USB GPS bağlı değil')})}
+else usbDurum('Bu tarayıcıda USB erişimi (WebUSB) yok: Android\'de Chrome ile aç');
+$('#usbgBtn').onclick=async()=>{if(USBG.on){usbKes();return}if(!('usb' in navigator)){toast('WebUSB yok: Android\'de Chrome kullan');return}
+  try{const d=await navigator.usb.requestDevice({filters:[]});usbBaslat(d)}catch(e){if(e.name!=='NotFoundError')usbDurum('USB GPS hatası: '+e.message)}};
+setInterval(()=>{if(USBG.on)usbDurum(USBG.fix&&Date.now()-USBG.t>5000?usbYazi()+' · veri durdu':usbYazi())},5000);
 
 /* ---------- Demir alarmı (telefon/tablet GPS'i, sayfa açıkken) ---------- */
 const ANCKEY='tekne-demir-v1';
